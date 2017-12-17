@@ -36,4 +36,4 @@ phpunit.phar
 
 init.sql
 README.php
-common\uploads\
+common/uploads/
