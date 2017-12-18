@@ -92,7 +92,7 @@ $template = ['template' => '{label}{input}'];
                 });
 
                 $(v).fileupload({
-                    url: './index.php?r=school/uploadlogo',
+                    url: './index.php?r=upload/init',
                     dataType: 'JSON',
                 }).bind('fileuploadprogress', function (e, data) {
                     //进度条

@@ -3,7 +3,7 @@
 namespace common\models;
 
 use Yii;
-
+use backend\models\Upload;
 /**
  * This is the model class for table "school".
  *
@@ -20,7 +20,6 @@ use Yii;
  */
 class School extends \yii\db\ActiveRecord
 {
-    private $_oldPaths = null;
     /**
      * @inheritdoc
      */
@@ -62,36 +61,16 @@ class School extends \yii\db\ActiveRecord
         ];
     }
 
-    public function afterFind()
-    {
-        parent::afterFind();
-        $this->_oldPaths = [
-            'logo'    => $this->getPath($this->logo), 
-            'receipt' => $this->getPath($this->receipt),
-            'teacher' => $this->getPath($this->teacher),
-            'student' => $this->getPath($this->student),
-        ];
-    }
-
-    private function getPath($path)
-    {
-        $array = explode('school', $path);
-        if(count($array) > 1)
-            return $array[1];
-        else
-            return 'ksjdsajdass.jpg';
-    }
-
     public function beforeSave($insert)
     {
         if(parent::beforeSave($insert))
         {
             if(!$insert)
             {
-                $this->logo    = $this->updateTemp($this->logo, 'logo');
-                $this->receipt = $this->updateTemp($this->receipt, 'receipt');
-                $this->teacher = $this->updateTemp($this->teacher, 'teacher');
-                $this->student = $this->updateTemp($this->student, 'student');
+                $this->logo    = Upload::updateTemp($this->logo,    $this->oldAttributes['logo'],    'school');
+                $this->receipt = Upload::updateTemp($this->receipt, $this->oldAttributes['receipt'], 'school');
+                $this->teacher = Upload::updateTemp($this->teacher, $this->oldAttributes['teacher'], 'school');
+                $this->student = Upload::updateTemp($this->student, $this->oldAttributes['student'], 'school');
             }
             return true;
         }
@@ -99,26 +78,4 @@ class School extends \yii\db\ActiveRecord
             return false;
     }
 
-    //将临时logo保存为正式并删除临时文件
-    private function updateTemp($tmp, $column)
-    {
-        $array = explode('temp/', $tmp);
-        if(count($array) < 2)
-            return $tmp;
-        else
-        {
-            $filename = $array[1];
-            $root = '../../common/uploads/';
-            $tmp  = $root . 'temp/' . $filename;
-            $new  = $root . 'school/' . $filename;
-            copy($tmp, $new);
-            unlink($tmp);
-
-            $oldFile = $root . 'school/' . $this->_oldPaths[$column];
-            if(file_exists($oldFile))
-                unlink($oldFile);
-
-            return IMG_PATH . 'school/' . $filename;
-        }
-    }
 }

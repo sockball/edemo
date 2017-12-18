@@ -69,6 +69,7 @@ class TeacherController extends Controller
         $model->avatar = School::findOne($school)->teacher;
         $model->sex = 1;
         $model->ischairman = 0;
+        $model->birthdate = $model->hiredate = time() * 1000;
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
@@ -132,7 +133,7 @@ class TeacherController extends Controller
             'upload' => [
                 'class' => 'kucha\ueditor\UEditorAction',
                 'config' => [
-                    'imageUrlPrefix'  => IMG_PATH,//图片访问路径前缀
+                    'imageUrlPrefix'  => IMG_PRE,//图片访问路径前缀
                     'imagePathFormat' => 'ueditor/image/teacher/{time}{rand:6}',
                     'imageRoot'       => Yii::getAlias('@common') . '\/uploads/',
                 ],

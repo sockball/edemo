@@ -40,7 +40,7 @@ class Upload
 
                     if ($image->saveAs($file))
                     {
-                    	$url = IMG_PATH . 'temp/' . $filename;
+                    	$url = IMG_PRE . 'temp/' . $filename;
                         $res = ['error' => 0, 'msg' => '上传成功', 'url' => $url, 'column' => $column];
                     }
                     else
@@ -51,5 +51,44 @@ class Upload
             	$res = ['error' => 1, 'msg' => '没有上传文件'];
 
             return $res;
+    }
+
+    //将临时logo保存为正式并删除临时文件
+    public static function updateTemp($tmp, $oldPath, $foldername)
+    {
+        $array = explode('temp/', $tmp);
+        if(count($array) < 2)
+            return $tmp;
+        else
+        {
+            $filename = $array[1];
+            $foldername = $foldername . '/';
+            $root = '../../common/uploads/';
+            $tmp  = $root . 'temp/' . $filename;
+            $newPath = $root . $foldername;
+            if(!file_exists($newPath))
+                FileHelper::createDirectory($newPath, 0755);
+            $new  = $newPath . $filename;
+            copy($tmp, $new);
+            unlink($tmp);
+
+            $oldPath = self::getPath($oldPath, $foldername);
+            if($oldPath !== false)
+            {
+                $oldFile = $root . $foldername . $oldPath;
+                unlink($oldFile);                
+            }
+
+            return IMG_PRE . $foldername . '/' . $filename;
+        }
+    }
+
+    public static function getPath($path, $foldername)
+    {
+        $array = explode($foldername, $path);
+        if(count($array) > 1)
+            return $array[1];
+        else
+            return false;
     }
 }

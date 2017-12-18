@@ -36,4 +36,5 @@ phpunit.phar
 
 init.sql
 README.php
+#上传文件夹不需要
 /common/uploads/*

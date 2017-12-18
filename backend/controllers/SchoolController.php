@@ -8,8 +8,6 @@ use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use backend\models\Upload;
-
 /**
  * SchoolController implements the CRUD actions for School model.
  */
@@ -83,6 +81,7 @@ class SchoolController extends Controller
      */
     public function actionUpdate()
     {
+
         $id = YII::$app->session->get('school'); 
         $model = $this->findModel($id);
 
@@ -127,26 +126,13 @@ class SchoolController extends Controller
         }
     }
 
-    public function actionUploadlogo()
-    {
-        if (Yii::$app->request->isPost)
-        {
-            $post = Yii::$app->request->post();
-            $res  = Upload::uploadPic($post['column']);
-        }
-        else
-            $res = ['error' => 1, 'msg' =>'非法请求'];
-
-        return json_encode($res, JSON_UNESCAPED_UNICODE);
-    }
-
     public function actions()
     {
         return [
             'upload' => [
                 'class' => 'kucha\ueditor\UEditorAction',
                 'config' => [
-                    'imageUrlPrefix'  => IMG_PATH,//图片访问路径前缀
+                    'imageUrlPrefix'  => IMG_PRE,//图片访问路径前缀
                     'imagePathFormat' => 'ueditor/image/school/{time}{rand:6}',
                     'imageRoot'       => Yii::getAlias('@common') . '\/uploads/',
                 ],

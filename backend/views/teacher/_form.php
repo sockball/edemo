@@ -95,13 +95,13 @@ UploadAsset::register($this);
             laydate.render({
                 elem: '#teacher-birthdate',
                 max: 0,
-                value: new Date(),
+                value: new Date(<?= $model->birthdate * 1000 ?>),
             });
 
             laydate.render({
                 elem: '#teacher-hiredate',
                 max: 0,
-                value: new Date(),
+                value: new Date(<?= $model->hiredate * 1000 ?>),
             });
 
             $('input[type=file]').bind('fileuploadsubmit', function (e, data) {
@@ -109,7 +109,7 @@ UploadAsset::register($this);
             });
 
             $('input[type=file]').fileupload({
-                url: './index.php?r=school/uploadlogo',
+                url: './index.php?r=upload/init',
                 dataType: 'JSON',
             }).bind('fileuploadprogress', function (e, data) {
                 //进度条

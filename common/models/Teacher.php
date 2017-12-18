@@ -3,7 +3,8 @@
 namespace common\models;
 
 use Yii;
-
+use backend\models\Upload;
+use backend\helpers\myHelpers;
 /**
  * This is the model class for table "teacher".
  *
@@ -41,10 +42,10 @@ class Teacher extends \yii\db\ActiveRecord
     {
         return [
             [['uid', 'sex', 'mobile', 'school', 'bindtime', 'ischairman'], 'integer'],
-            [['name', 'mobile'], 'required'],
+            [['name', 'mobile', 'avatar'], 'required'],
             [['experience', 'result', 'special'], 'string'],
             [['name', 'main'], 'string', 'max' => 50],
-            [['bindcode'], 'string', 'max' => 8],
+            // [['bindcode'], 'string', 'max' => 8],
             [['birthdate', 'hiredate'], 'required', 'message' => '请选择日期'],
             // [['birthdate', 'hiredate'], 'date', 'format' => 'yyyy-MM-dd', 'message' => '请选择日期'],
             ['mobile', 'match', 'pattern' => '/1[345678]\d{9}/', 'message' => '请输入正确手机号'],
@@ -72,5 +73,26 @@ class Teacher extends \yii\db\ActiveRecord
             'result' => '教学成果',
             'special' => '教学特点',
         ];
+    }
+
+    public function beforeSave($insert)
+    {
+        if(parent::beforeSave($insert))
+        {
+            if($insert)
+            {
+                $this->bindcode = myHelpers::createBindCode();
+                $this->school   = Yii::$app->session->get('school');
+                $this->avatar   = Upload::updateTemp($this->avatar, '', 'teacher');
+            }
+            else
+                $this->avatar = Upload::updateTemp($this->avatar, $this->oldAttributes['avatar'], 'teacher');
+
+            $this->birthdate  = strtotime($this->birthdate);
+            $this->hiredate   = strtotime($this->hiredate);
+            return true;
+        }
+        else
+            return false;
     }
 }

@@ -3,6 +3,10 @@ namespace backend\widgets;
 use Yii;
 use yii\widgets\InputWidget;
 use yii\helpers\HTML;
+
+/**
+  * 继承InputWidget后可获取 ActiveField中model 和 attribute值
+*/
 class FormWidget extends InputWidget
 {
     public $params;

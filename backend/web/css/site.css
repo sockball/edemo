@@ -131,3 +131,5 @@ a.desc:after {
 .wrap .submenu .list-group-item{margin-left:10px;}
 /*侧边导航栏一级导航背景颜色*/
 .list-group-item.active[data-toggle=collapse]{background:#666;border-color: #666}
+table{text-align: center}
+table th{text-align: center;}

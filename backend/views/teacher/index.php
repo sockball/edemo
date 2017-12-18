@@ -26,14 +26,38 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute' => 'id',
                 'contentOptions' => ['width' => '30px'],
             ],
-            'uid',
-            'name',
-            'sex',
-            'mobile',
+            [
+                'attribute' => 'name',
+                'label'     => '姓名',
+                'contentOptions' => ['width' => '60px'],
+            ],
+            [
+                'attribute' => 'sex',
+                'contentOptions' => ['width' => '80px'],
+                'filter' =>['0' => '男', '1' => '女'],
+                'value'     => function($data) {
+                    return $data->sex ? '女' : '男';
+                }, 
+            ],
+            [
+                'attribute' => 'mobile',
+                'label'     => '手机号',
+                'contentOptions' => ['width' => '100px'],
+            ],
+            [
+                'attribute' => 'age',
+                'label'     => '年龄',
+                'contentOptions' => ['width' => '80px'],
+                'value'     => function($data){
+                    return date('Y') -  date('Y', $data->birthdate) . '岁';
+                },
+            ],
+            [ 
+                'attribute' => 'bindcode',
+                'contentOptions' => ['width' => '80px'],
+            ],
             // 'avatar',
             // 'main',
-            // 'birthdate',
-            // 'bindcode',
             ['class' => 'yii\grid\ActionColumn'],
         ],
     ]); ?>
