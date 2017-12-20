@@ -86,14 +86,14 @@ class SchoolController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()){
-            $success = true;
+            $hint = true;
         } else {
-            $success = false;
+            $hint = false;
         }
 
         return $this->render('update', [
             'model'  => $model,
-            'success' => $success,
+            'hint' => $hint,
         ]);
     }
 

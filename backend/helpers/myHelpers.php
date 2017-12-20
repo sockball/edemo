@@ -32,4 +32,36 @@ class myHelpers
 
         return substr($str, 0, 8); 
     }
+
+    /**
+      * 生成后台提示用HTML
+      * @string $hint 提示内容
+      * return string
+    */
+
+    public static function giveHint($hint = 'What do you want to hint')
+    {
+        $hintHTML = <<<start
+    <div class="alert alert-warning alert-dismissible" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      
+      <h4>{$hint}</h4>
+    </div>
+start;
+
+        return $hintHTML;
+    }
+
+    /**
+      * 获取图片上传地址(除去图片url前缀)
+      * @string $path 原完整图片url
+      * return string 系统可读相对路径
+    */
+
+    public static function getImgPath($path)
+    {
+        $length = strlen(IMG_PRE);
+
+        return '../../common/uploads/' . substr($path, $length);
+    }
 }

@@ -4,6 +4,7 @@ namespace backend\models;
 use Yii;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
+use backend\helpers\myHelpers;
 // use yii\web\Controller;
 
 class Upload
@@ -66,29 +67,22 @@ class Upload
             $root = '../../common/uploads/';
             $tmp  = $root . 'temp/' . $filename;
             $newPath = $root . $foldername;
+
             if(!file_exists($newPath))
                 FileHelper::createDirectory($newPath, 0755);
+
             $new  = $newPath . $filename;
             copy($tmp, $new);
             unlink($tmp);
 
-            $oldPath = self::getPath($oldPath, $foldername);
-            if($oldPath !== false)
-            {
-                $oldFile = $root . $foldername . $oldPath;
-                unlink($oldFile);                
+            $oldFile = myHelpers::getImgPath($oldPath);
+
+            if(file_exists($oldFile) && strpos($oldFile, $foldername)){
+                unlink($oldFile);
             }
 
-            return IMG_PRE . $foldername . '/' . $filename;
+            return IMG_PRE . $foldername . $filename;
         }
     }
 
-    public static function getPath($path, $foldername)
-    {
-        $array = explode($foldername, $path);
-        if(count($array) > 1)
-            return $array[1];
-        else
-            return false;
-    }
 }

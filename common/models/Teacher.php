@@ -58,7 +58,7 @@ class Teacher extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => '教师ID',
+            'id' => 'ID',
             'uid' => 'Uid',
             'name' => '教师姓名',
             'sex' => '性别',
@@ -94,5 +94,24 @@ class Teacher extends \yii\db\ActiveRecord
         }
         else
             return false;
+    }
+
+/*    public function beforeDelete()
+    {
+        return parent::beforeDelete();
+    }*/
+
+    public function afterDelete()
+    {
+        $oldAvatar = myHelpers::getImgPath($this->avatar);
+        if(file_exists($oldAvatar) && strpos($oldAvatar, 'teacher/'))
+            unlink($oldAvatar);
+
+        return parent::beforeDelete();
+    }
+
+    public function getAge()
+    {
+        return date('Y') -  date('Y', $this->birthdate);
     }
 }

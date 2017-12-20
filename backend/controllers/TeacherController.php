@@ -33,14 +33,16 @@ class TeacherController extends Controller
      * Lists all Teacher models.
      * @return mixed
      */
-    public function actionIndex()
+    public function actionIndex($op = false)
     {
-        $searchModel = new TeacherSearch();
+        $searchModel  = new TeacherSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $hint         = $this->getHint($op);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
+            'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
+            'hint'      => $hint,
         ]);
     }
 
@@ -49,12 +51,12 @@ class TeacherController extends Controller
      * @param string $id
      * @return mixed
      */
-    public function actionView($id)
+/*    public function actionView($id)
     {
         return $this->render('view', [
             'model' => $this->findModel($id),
         ]);
-    }
+    }*/
 
     /**
      * Creates a new Teacher model.
@@ -69,9 +71,10 @@ class TeacherController extends Controller
         $model->avatar = School::findOne($school)->teacher;
         $model->sex = 1;
         $model->ischairman = 0;
-        $model->birthdate = $model->hiredate = time() * 1000;
+        $model->birthdate = $model->hiredate = time();
+
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index', 'op' => 'create']);    
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -90,7 +93,7 @@ class TeacherController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            return $this->redirect(['index', 'op' => 'update']);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -108,7 +111,7 @@ class TeacherController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        return '删除教师成功！';
     }
 
     /**
@@ -139,5 +142,25 @@ class TeacherController extends Controller
                 ],
             ]
         ];
+    }
+
+    public function getHint($op)
+    {
+        switch ($op)
+        {
+            case 'create':
+                $hint = '新增教师成功';
+                break;
+    
+            case 'update':
+                $hint = '更新教师信息成功';
+                break;
+
+            default:
+                $hint = false;
+                break;
+        }
+
+        return $hint;
     }
 }
