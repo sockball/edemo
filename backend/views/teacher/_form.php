@@ -105,7 +105,7 @@ UploadAsset::register($this);
             });
 
             $('input[type=file]').bind('fileuploadsubmit', function (e, data) {
-                data.formData = {column: $(this).attr('name')};
+                data.formData = {type: 'img', column: $(this).attr('name')};
             });
 
             $('input[type=file]').fileupload({

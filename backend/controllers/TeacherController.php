@@ -33,16 +33,16 @@ class TeacherController extends Controller
      * Lists all Teacher models.
      * @return mixed
      */
-    public function actionIndex($op = false)
+    public function actionIndex()
     {
         $searchModel  = new TeacherSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $hint         = $this->getHint($op);
+        $hint         = $this->getHint();
 
         return $this->render('index', [
             'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
-            'hint'      => $hint,
+            'hint'         => $hint,
         ]);
     }
 
@@ -74,7 +74,9 @@ class TeacherController extends Controller
         $model->birthdate = $model->hiredate = time();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'op' => 'create']);    
+            YII::$app->session->set('hint','create');
+
+            return $this->redirect(['index']);    
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -93,7 +95,9 @@ class TeacherController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['index', 'op' => 'update']);
+            YII::$app->session->set('hint','update');
+
+            return $this->redirect(['index']);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -112,6 +116,15 @@ class TeacherController extends Controller
         $this->findModel($id)->delete();
 
         return '删除教师成功！';
+    }
+
+    public function actionDeleteall()
+    {
+        $post = Yii::$app->request->post();
+        $ids  = $post['ids'];
+        //deleteAll操作....
+
+        return '批量删除成功';
     }
 
     /**
@@ -144,8 +157,12 @@ class TeacherController extends Controller
         ];
     }
 
-    public function getHint($op)
+    public function getHint()
     {
+        $session = Yii::$app->session;
+        $op      = $session->get('hint', false);
+        $session->remove('hint');
+
         switch ($op)
         {
             case 'create':

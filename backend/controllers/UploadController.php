@@ -26,12 +26,29 @@ class UploadController extends Controller
         ];
     }
 
+    //column为input框的name值
     public function actionInit()
     {
         if (Yii::$app->request->isPost)
         {
             $post = Yii::$app->request->post();
-            $res  = Upload::uploadPic($post['column']);
+
+            switch ($post['type']) {
+                case 'pdf':
+                    break;
+
+                case 'excel':
+                    $res = Upload::uploadExcel($post['name']);
+                    break;
+
+                case 'img':
+                    $res  = Upload::uploadPic($post['column']);
+                    break;                 
+
+                default:
+                    $res = ['error' => 1, 'msg' =>'请求数据异常'];
+                    break;
+            }
         }
         else
             $res = ['error' => 1, 'msg' =>'非法请求'];

@@ -178,10 +178,9 @@ else
                          'linkOptions' => [],
                      ],
                  ],
-                 'options' => ['class' =>'navbar-nav navbar-left'],
+                 'options' => ['class' =>'nav nav-tabs img-margin-bottom'],
                 ]);
                     ?>
-                    <div class='clearfix img-margin-bottom'></div>                       
                     <?php endif;?>
                     <?= $content ?>
                 </div>                

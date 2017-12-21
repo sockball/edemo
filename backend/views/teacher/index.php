@@ -4,24 +4,38 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use backend\helpers\myHelpers;
 use backend\widgets\JsBlock;
+use backend\assets\UploadAsset;
+use yii\helpers\Url;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\TeacherSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = '教师管理';
 $this->params['breadcrumbs'][] = $this->title;
+
+UploadAsset::register($this);
 ?>
-    <?= $hint ? myHelpers::giveHint($hint) : '' ?>
+
+<?= $hint ? myHelpers::giveHint($hint) : '' ?>
 
 <div class="teacher-index">
 
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
-
     <p class='img-margin-bottom'>
         <?= Html::a('新增教师', ['create'], ['class' => 'btn btn-success']) ?>
-        <?= Html::a('批量导入教师', ['#'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('批量导入教师', 'javascript:;', ['class' => 'btn btn-success', 'id' => 'export']) ?>
     </p>
+
+    <p class='img-margin-bottom' style='display:none' id='exportBlock'>
+        <span class='btn btn-info fileinput-button'>
+            <i class='glyphicon glyphicon-plus'></i>
+            <span>上传并导入</span>
+            <input type='file' name='excel' id='uploadExcel'>
+        </span>
+        <?= Html::a('下载导入模板', IMG_PRE . 'excel/template_teacher.xls', ['class' => 'btn btn-info']) ?>
+    </p>
+
     <?= GridView::widget([
+        'options' => ['id' => 'grid'],
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'rowOptions' => ['class' => 'text-center'],
@@ -39,10 +53,15 @@ $this->params['breadcrumbs'][] = $this->title;
          ],
         'columns' => [
             [
+                'class' => 'yii\grid\CheckboxColumn',
+                'name' => 'id',
+                'footerOptions'=>['colspan' => 9],
+                'footer' => HTML::a('批量删除', 'javascript:;', ['class' => 'btn btn-warning deleteAll']),
+            ],
+            [
                 'attribute' => 'id',
-                'contentOptions' => ['width' => '30px'],
-                'footerOptions'=>['colspan'=>8],
-                'footer'=>'<a href="javascript:;" class="_delete_all" data-url="111">删除全部</a>',
+                'contentOptions' => ['width' => '40px'],
+                'footerOptions'=>['class' => 'hide'],
             ],
             [
                 'attribute' => 'name',
@@ -122,5 +141,45 @@ $this->params['breadcrumbs'][] = $this->title;
                 });
             });
         }
+
+        $('#export').on('click', function(){
+            $('#exportBlock').slideToggle();
+        });
+
+        $('#uploadExcel').bind('fileuploadsubmit', function (e, data) {
+            data.formData = {type: 'excel', name: 'teacher'};  //如果需要额外添加参数可以在这里添加
+        });
+
+        $('#uploadExcel').fileupload({
+            url: './index.php?r=upload/init',
+            dataType: 'JSON',
+        }).bind('fileuploadprogress', function (e, data) {
+            //进度条
+            layer.msg('上传中', {shade:0.3, time:0, scrollbar: false});
+        }).bind('fileuploaddone', function (e, data) {
+            //上传完成
+            if(data.result.error > 0)
+                layer.alert(data.result.msg, {icon: 2, scrollbar: false});
+            else
+                layer.msg(data.result.msg, {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false});
+        });
+
+        $('.deleteAll').on('click', function(){
+            layer.confirm('确认删除这些吗?', function(index)
+            {
+                layer.close(index);
+
+                let deleteIds = $('#grid').yiiGridView('getSelectedRows');
+                if(deleteIds.length < 1)
+                {
+                    layer.alert('请至少选择一项要删除的项！', {icon: 2});
+                    return ;
+                }
+
+                $.post('./index.php?r=teacher/deleteall', {ids: deleteIds}, function(res) {
+                    layer.msg(res, {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false});
+                });
+            });
+        });
     </script>
 <?php JsBlock::end();   ?>

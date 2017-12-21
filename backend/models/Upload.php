@@ -5,6 +5,7 @@ use Yii;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use backend\helpers\myHelpers;
+use common\models\Teacher;
 // use yii\web\Controller;
 
 class Upload
@@ -15,9 +16,9 @@ class Upload
 	//后缀名
 	const extensions = ['gif', 'jpg', 'jpeg', 'png', 'gif'];
 
-    public static function uploadPic($column)
+    public static function uploadPic($inputName)
     {
-            $images = UploadedFile::getInstancesByName($column);
+            $images = UploadedFile::getInstancesByName($inputName);
             if (count($images) > 0)
             {
                 foreach ($images as $key => $image)
@@ -29,7 +30,7 @@ class Upload
                         return $res = ['error' => 1, 'msg' => '请上传标准图片文件']; 
 
                     $filepath = '../../common/uploads/temp/';
-                    $filename =  $column . time() .  '.' . $image->extension;//getExtension();  
+                    $filename =  $inputName . time() .  '.' . $image->extension;//getExtension();  
 
                     //如果文件夹不存在 
                     if (!file_exists($filepath))
@@ -42,7 +43,7 @@ class Upload
                     if ($image->saveAs($file))
                     {
                     	$url = IMG_PRE . 'temp/' . $filename;
-                        $res = ['error' => 0, 'msg' => '上传成功', 'url' => $url, 'column' => $column];
+                        $res = ['error' => 0, 'msg' => '上传成功', 'url' => $url, 'column' => $inputName];
                     }
                     else
                     	$res = ['error' => 1, 'msg' => '上传失败'];
@@ -85,4 +86,19 @@ class Upload
         }
     }
 
+    public static function uploadExcel($type)
+    {
+        $excel    = UploadedFile::getInstanceByName('excel');
+        $filepath = '../../common/uploads/excel/';
+        $filename =  $filepath . $type . time() .  '.' . $excel->extension;
+
+        if ($excel->saveAs($filename))
+        {
+            $res = ['error' => 0, 'msg' => '批量导入教师成功'];
+        }
+        else
+            $res = ['error' => 1, 'msg' => '上传失败'];
+
+        return $res;
+    }
 }

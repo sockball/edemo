@@ -88,7 +88,7 @@ $template = ['template' => '{label}{input}'];
             $('input[type=file]').each(function(i, v) {
                 //上传前传递参数
                 $(v).bind('fileuploadsubmit', function (e, data) {
-                    data.formData = {column: $(this).attr('name')};
+                    data.formData = {type: 'img', column: $(this).attr('name')};
                 });
 
                 $(v).fileupload({

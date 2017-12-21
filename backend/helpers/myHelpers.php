@@ -64,4 +64,35 @@ start;
 
         return '../../common/uploads/' . substr($path, $length);
     }
+
+    public static function readExcel()
+    {
+        $filePath  = '../../common/uploads/excel/template_teacher.xls';
+        $data = [];
+        $PHPReader = new \PHPExcel_Reader_Excel2007(); 
+        if(!$PHPReader->canRead($filePath))
+        {
+            $PHPReader = new \PHPExcel_Reader_Excel5(); 
+            if(!$PHPReader->canRead($filePath))
+            { 
+                echo 'no Excel';
+                exit;
+            }
+        }
+
+        $PHPExcel     = $PHPReader->load($filePath);
+        $currentSheet = $PHPExcel->getSheet(0);
+        $allColumn    = $currentSheet->getHighestColumn(); //最大行号 ABCDEFG
+        $allRow       = $currentSheet->getHighestRow();
+
+        for($row = 2; $row <= $allRow; $row++)
+        {
+            for($column = 'A'; $column <= $allColumn; $column++)
+            {
+                $data[$row - 1][] = $currentSheet->getCellByColumnAndRow(ord($column) - 65, $row)->getValue();
+            }
+        }
+
+        return $data;
+    }
 }
