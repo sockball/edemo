@@ -45,9 +45,8 @@ class TeacherSearch extends Teacher
      */
     public function search($params)
     {
-        $query = Teacher::find();
-
-        // add conditions that should always apply here
+        $school = Yii::$app->session->get('school');
+        $query  = Teacher::find()->where(['school' => $school]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,

@@ -9,6 +9,7 @@ use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use common\models\School;
+use backend\helpers\myHelpers;
 /**
  * TeacherController implements the CRUD actions for Teacher model.
  */
@@ -35,28 +36,15 @@ class TeacherController extends Controller
      */
     public function actionIndex()
     {
+        //貌似此处未限制学校id查询
         $searchModel  = new TeacherSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
-        $hint         = $this->getHint();
 
         return $this->render('index', [
             'searchModel'  => $searchModel,
             'dataProvider' => $dataProvider,
-            'hint'         => $hint,
         ]);
     }
-
-    /**
-     * Displays a single Teacher model.
-     * @param string $id
-     * @return mixed
-     */
-/*    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }*/
 
     /**
      * Creates a new Teacher model.
@@ -74,7 +62,7 @@ class TeacherController extends Controller
         $model->birthdate = $model->hiredate = time();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            YII::$app->session->set('hint','create');
+            YII::$app->session->set('hint','新增教师成功');
 
             return $this->redirect(['index']);    
         } else {
@@ -95,7 +83,7 @@ class TeacherController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            YII::$app->session->set('hint','update');
+            YII::$app->session->set('hint','更新教师信息成功');
 
             return $this->redirect(['index']);
         } else {
@@ -155,29 +143,5 @@ class TeacherController extends Controller
                 ],
             ]
         ];
-    }
-
-    public function getHint()
-    {
-        $session = Yii::$app->session;
-        $op      = $session->get('hint', false);
-        $session->remove('hint');
-
-        switch ($op)
-        {
-            case 'create':
-                $hint = '新增教师成功';
-                break;
-    
-            case 'update':
-                $hint = '更新教师信息成功';
-                break;
-
-            default:
-                $hint = false;
-                break;
-        }
-
-        return $hint;
     }
 }

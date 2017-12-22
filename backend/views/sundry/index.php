@@ -2,23 +2,22 @@
 
 use yii\helpers\Html;
 use yii\grid\GridView;
-use yii\bootstrap\Nav;
-use backend\helpers\myHelpers;
 use backend\widgets\JsBlock;
+use backend\helpers\myHelpers;
 /* @var $this yii\web\View */
-/* @var $searchModel common\models\GradeSearch */
+/* @var $searchModel common\models\SundrySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = '年级管理';
+$this->title = "{$title}管理";
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 
 <?= ($hint = myHelpers::getHint()) ? myHelpers::giveHint($hint) : '' ?>
 
-<div class="grade-index">
+<div class="sundry-index">
 
     <p class='img-margin-bottom'>
-        <?= Html::a('新增年级', ['create'], ['class' => 'btn btn-success ']) ?>
+        <?= Html::a('新增' . $title, ['create', 'type' => $type], ['class' => 'btn btn-success']) ?>
     </p>
 
     <?= GridView::widget([
@@ -26,8 +25,6 @@ $this->params['breadcrumbs'][] = $this->title;
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'rowOptions' => ['class' => 'text-center'],
-        'emptyText' => '没有年级数据',
-        'emptyTextOptions' => ['style'=>'color:red;font-weight:bold'],
         'layout'    => '{items}{pager}',//{summary}
         'pager' => [
             'options'          =>['class' => 'pagination pull-right img-margin-right'],
@@ -38,22 +35,35 @@ $this->params['breadcrumbs'][] = $this->title;
          ],
         'columns' => [
             'id',
-            'name',
             [
-                'attribute' => 'manager',
-                'label'     => '年级主任',
-                'value'     => 'teacher.name',
+                'attribute' => 'name',
+                'label'     => $title,
             ],
             [
                 'header'=> '操作',
                 'template' => '{update}&nbsp;{delete}',
                 'class' => 'yii\grid\ActionColumn',
                 'buttons' => [
-                        'delete' => function ($url, $model, $key) {
-                            return Html::a('<span class="glyphicon glyphicon-trash"></span>', 'javascript:;', ['onclick' => "deleteGrade({$model->id})",
+                        'update' => function($url, $model, $key)
+                        {
+                            $content = '<span class="glyphicon glyphicon-pencil"></span>';
+                            //$type传不进来阿
+                            $url = ['sundry/update', 'id' => $model->id, 'type' => $_GET['type']];
+                            $options = ['title' => '更新', 'data-pjax' =>'0'];
+
+                            return Html::a($content, $url, $options);
+                        },
+                        'delete' => function ($url, $model, $key)
+                        {
+                            $content = '<span class="glyphicon glyphicon-trash"></span>';
+                            $url     = 'javascript:;';
+                            $options = [
+                                    'onclick' => "deleteSubject({$model->id})",
                                     'title' => '删除',
                                     'class' => 'btn btn-xs',
-                                ]);
+                                ];
+
+                            return Html::a($content, $url, $options);
                         },
                 ],
             ],
@@ -68,13 +78,15 @@ $this->params['breadcrumbs'][] = $this->title;
             layer = layui.layer;
         });
 
-        function deleteGrade(id)
+        function deleteSubject(id)
         {
-            layer.confirm('确认删除该年级吗?', function(index)
+            var title = '<?= $title ?>';
+            layer.confirm('确认删除该' + title + '吗?', function(index)
             {
                 layer.close(index);
 
-                $.post('./index.php?r=grade/delete&id=' + id, {}, function(res) {
+                let url = './index.php?r=sundry/delete&id=' + id + '&title=' + title; 
+                $.post(url, {}, function(res) {
                     layer.msg(res, {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false}, function(){
                         location.reload();
                     });

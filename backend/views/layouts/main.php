@@ -30,7 +30,10 @@ $currentController = Yii::$app->controller->id;
 //是否为基础设置 是则启用右上边栏
 if(in_array($currentController, ['grade', 'classinfo', 'sundry']))
 {
-    array_unshift($this->params['breadcrumbs'], '基础设置');
+    array_unshift($this->params['breadcrumbs'], ['label' => '基础设置', 'url' => 'grade/index']);
+
+    //杂项的类型
+    $type = isset($_GET['type']) ? $_GET['type'] : false;
     $flag = true;
 }
 else
@@ -126,7 +129,8 @@ else
                                   'items' => [
                                        ['label' => '校园设置', 'url' => ['school/update'], 'active' => ($currentController == 'school')],
                                        // '<li class="dropdown-header">Dropdown Header</li>',
-                                       ['label' => '基础设置', 'url' => ['grade/index'], 'active' => ($currentController == 'grade')],
+                                       ['label' => '基础设置', 'url' => ['grade/index'], 'active' => (in_array($currentController, ['grade', 'classinfo', 'sundry']))
+                                       ],
                                        ['label' => '积分设置', 'url' => '#'],
                                        ['label' => '幻灯片管理', 'url' => '#'],
                                   ],
@@ -155,7 +159,8 @@ else
                      [
                          'label' => '年级管理',
                          'url' => ['grade/index'],
-                         'linkOptions' => ['class'=> ($currentController == 'grade') ? 'bg-primary' : ''],
+                         'active' => ($currentController == 'grade'),
+                         // 'linkOptions' => ['class'=> ($currentController == 'grade') ? 'bg-primary' : ''],
                      ],
                      [
                          'label' => '班级管理',
@@ -164,17 +169,20 @@ else
                      ],
                      [
                          'label' => '科目管理',
-                         'url' => ['site/index'],
+                         'url' => ['sundry/index', 'type' => 'subject'],
+                         'active' => ($type == 'subject'),
                          'linkOptions' => [],
                      ],
                      [
                          'label' => '星期管理',
-                         'url' => ['site/index'],
+                         'url' => ['sundry/index', 'type' => 'week'],
+                         'active' => ($type == 'week'),
                          'linkOptions' => [],
                      ],
                      [
                          'label' => '时段管理',
-                         'url' => ['site/index'],
+                         'url' => ['sundry/index', 'type' => 'period'],
+                         'active' => ($type == 'period'),
                          'linkOptions' => [],
                      ],
                  ],

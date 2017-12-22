@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Grade;
+use common\models\Sundry;
 
 /**
- * GradeSearch represents the model behind the search form about `common\models\Grade`.
+ * SundrySearch represents the model behind the search form about `common\models\Sundry`.
  */
-class GradeSearch extends Grade
+class SundrySearch extends Sundry
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class GradeSearch extends Grade
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['name', 'manager'], 'safe'],
+            [['id', 'school'], 'integer'],
+            [['name', 'type'], 'safe'],
         ];
     }
 
@@ -42,13 +42,15 @@ class GradeSearch extends Grade
     public function search($params)
     {
         $school = Yii::$app->session->get('school');
-        $query  = Grade::find()->where(['grade.school' => $school]);
+        $query  = Sundry::find()->where(['school' => $school]);
+
+        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => ['pagesize' => 10],
             'sort'      => [
-                        'defaultOrder' => ['id' => SORT_DESC],
+                        'defaultOrder' => ['id' => SORT_ASC],
                         'attributes'   => ['id'],
             ]
         ]);
@@ -63,13 +65,11 @@ class GradeSearch extends Grade
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'grade.id' => $this->id,
+            'id' => $this->id,
+            'type'   => $params['type'],
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);
-
-        $query->join('INNER JOIN', 'teacher', 'teacher.id = grade.manager');
-        $query->andFilterWhere(['like', 'teacher.name', $this->manager]);
 
         return $dataProvider;
     }

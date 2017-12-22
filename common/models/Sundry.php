@@ -3,23 +3,23 @@
 namespace common\models;
 
 use Yii;
-use common\models\Teacher;
+
 /**
- * This is the model class for table "grade".
+ * This is the model class for table "sundry".
  *
  * @property string $id
  * @property integer $school
  * @property string $name
- * @property integer $manager
+ * @property string $type
  */
-class Grade extends \yii\db\ActiveRecord
+class Sundry extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'grade';
+        return 'sundry';
     }
 
     /**
@@ -28,9 +28,10 @@ class Grade extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'manager'], 'required'],
-            [['school', 'manager'], 'integer'],
-            [['name'], 'string', 'max' => 100],
+            [['school'], 'integer'],
+            [['name', 'type'], 'required'],
+            [['name'], 'string', 'max' => 50],
+            [['type'], 'string', 'max' => 10],
         ];
     }
 
@@ -40,10 +41,10 @@ class Grade extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => '年级id',
-            'school' => '学校',
-            'name' => '年级名称',
-            'manager' => '年级主任',
+            'id' => 'ID',
+            'school' => 'School',
+            'name' => 'Name',
+            'type' => 'Type',
         ];
     }
 
@@ -59,8 +60,4 @@ class Grade extends \yii\db\ActiveRecord
             return false;
     }
 
-    public function getTeacher()
-    {
-        return $this->hasOne(Teacher::className(), ['id' => 'manager']);
-    }
 }

@@ -2,7 +2,7 @@
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
-
+use common\models\Teacher;
 /* @var $this yii\web\View */
 /* @var $model common\models\Grade */
 /* @var $form yii\widgets\ActiveForm */
@@ -18,11 +18,13 @@ use yii\widgets\ActiveForm;
                 'labelOptions' => ['class' => 'col-md-2 control-label font-left'],  
             ],
         ]); 
+
+        $techers = Teacher::find()->select(['name','id'])->indexBy('id')->column();
     ?>
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'manager')->textInput() ?>
+    <?= $form->field($model, 'manager')->dropDownList($techers, ['prompt'=>'请选择年级主任']) ?>
 
     <div class='form-group'>
     	<label class='col-md-2'>

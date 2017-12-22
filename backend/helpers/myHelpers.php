@@ -2,7 +2,7 @@
 
 namespace backend\helpers;
 
-
+use Yii;
 /**
  * 自定义辅助方法类
  */
@@ -65,22 +65,20 @@ start;
         return '../../common/uploads/' . substr($path, $length);
     }
 
-    public static function readExcel()
+    public static function readExcel($file)
     {
-        $filePath  = '../../common/uploads/excel/template_teacher.xls';
         $data = [];
         $PHPReader = new \PHPExcel_Reader_Excel2007(); 
-        if(!$PHPReader->canRead($filePath))
+        if(!$PHPReader->canRead($file))
         {
             $PHPReader = new \PHPExcel_Reader_Excel5(); 
-            if(!$PHPReader->canRead($filePath))
+            if(!$PHPReader->canRead($file))
             { 
-                echo 'no Excel';
-                exit;
+              return ['error' => 1, 'msg' => '读取excel文件错误'];
             }
         }
 
-        $PHPExcel     = $PHPReader->load($filePath);
+        $PHPExcel     = $PHPReader->load($file);
         $currentSheet = $PHPExcel->getSheet(0);
         $allColumn    = $currentSheet->getHighestColumn(); //最大行号 ABCDEFG
         $allRow       = $currentSheet->getHighestRow();
@@ -89,10 +87,22 @@ start;
         {
             for($column = 'A'; $column <= $allColumn; $column++)
             {
-                $data[$row - 1][] = $currentSheet->getCellByColumnAndRow(ord($column) - 65, $row)->getValue();
+                $cell = $currentSheet->getCell($column . $row)->getValue();
+                if($cell instanceof \PHPExcel_RichText)     //富文本转换字符串  
+                    $cell = $cell->__toString();
+                $data[$row - 2][] = $cell;
             }
         }
 
         return $data;
+    }
+
+    public static function getHint()
+    {
+        $session = Yii::$app->session;
+        $hint    = $session->get('hint', false);
+        $session->remove('hint');
+
+        return $hint;
     }
 }

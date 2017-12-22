@@ -16,7 +16,7 @@ $this->params['breadcrumbs'][] = $this->title;
 UploadAsset::register($this);
 ?>
 
-<?= $hint ? myHelpers::giveHint($hint) : '' ?>
+<?= ($hint = myHelpers::getHint()) ? myHelpers::giveHint($hint) : '' ?>
 
 <div class="teacher-index">
 
@@ -45,22 +45,22 @@ UploadAsset::register($this);
         // 'showOnEmpty'=> false, //默认开启表格
         'showFooter' => true,//默认关闭底部
         'pager'=>[
-            'options'=>['class'=>'pagination pull-right img-margin-right'],
-            'firstPageLabel'=>'首页',
-            'prevPageLabel'=>'上一页',
-            'nextPageLabel'=>'下一页',
-            'lastPageLabel'=>'末页',
+            'options'        => ['class'=>'pagination pull-right img-margin-right'],
+            'firstPageLabel' => '首页',
+            'prevPageLabel'  => '上一页',
+            'nextPageLabel'  => '下一页',
+            'lastPageLabel'  => '末页',
          ],
         'columns' => [
             [
-                'class' => 'yii\grid\CheckboxColumn',
-                'name' => 'id',
-                'footerOptions'=>['colspan' => 9],
+                'class'         => 'yii\grid\CheckboxColumn',
+                'name'          => 'id',
+                'footerOptions' => ['colspan' => 9],
                 'footer' => HTML::a('批量删除', 'javascript:;', ['class' => 'btn btn-warning deleteAll']),
             ],
             [
                 'attribute' => 'id',
-                'contentOptions' => ['width' => '40px'],
+                'contentOptions' => ['width' => '50px'],
                 'footerOptions'=>['class' => 'hide'],
             ],
             [
@@ -83,32 +83,32 @@ UploadAsset::register($this);
                 }, 
             ],
             [
-                'attribute' => 'mobile',
-                'label'     => '手机号',
+                'attribute'      => 'mobile',
+                'label'          => '手机号',
                 'contentOptions' => ['width' => '100px'],
-                'footerOptions' => ['class'=>'hide'],
+                'footerOptions'  => ['class'=>'hide'],
             ],
             [
-                'attribute' => 'age',
-                'label'     => '年龄',
+                'attribute'      => 'age',
+                'label'          => '年龄',
                 'contentOptions' => ['width' => '80px'],
-                'footerOptions' => ['class'=>'hide'],
+                'footerOptions'  => ['class'=>'hide'],
             ],
             [
-                'attribute' => 'bindcode',
+                'attribute'      => 'bindcode',
                 'contentOptions' => ['width' => '80px'],
+                'footerOptions'  => ['class'=>'hide'],
+            ],
+            [
+                'attribute'     =>'main',
                 'footerOptions' => ['class'=>'hide'],
             ],
             [
-                'attribute' =>'main',
+                'header'        => '操作',
+                'template'      => '{update}&nbsp;{delete}',
+                'class'         => 'yii\grid\ActionColumn',
                 'footerOptions' => ['class'=>'hide'],
-            ],
-            [
-                'header'=> '操作',
-                'template'  => '{update}&nbsp;{delete}',
-                'class' => 'yii\grid\ActionColumn',
-                'footerOptions' => ['class'=>'hide'],
-                'buttons' =>[
+                'buttons' => [
                         'delete' => function ($url, $model, $key) {
                             return Html::a('<span class="glyphicon glyphicon-trash"></span>', 'javascript:;', ['onclick' => "deleteTeacher({$model->id})",
                                     'title' => '删除',
@@ -161,7 +161,12 @@ UploadAsset::register($this);
             if(data.result.error > 0)
                 layer.alert(data.result.msg, {icon: 2, scrollbar: false});
             else
-                layer.msg(data.result.msg, {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false});
+                layer.msg(data.result.msg, 
+                    {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false},
+                    function(){
+                        location.reload();
+                    }
+                );
         });
 
         $('.deleteAll').on('click', function(){

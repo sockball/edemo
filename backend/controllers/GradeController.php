@@ -46,18 +46,6 @@ class GradeController extends Controller
     }
 
     /**
-     * Displays a single Grade model.
-     * @param string $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
      * Creates a new Grade model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
@@ -67,7 +55,9 @@ class GradeController extends Controller
         $model = new Grade();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            YII::$app->session->set('hint', '新增年级成功');
+            
+            return $this->redirect(['index']);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -86,7 +76,9 @@ class GradeController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            YII::$app->session->set('hint', '更新年级成功');
+
+            return $this->redirect(['index']);
         } else {
             return $this->render('update', [
                 'model' => $model,
@@ -104,7 +96,7 @@ class GradeController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return $this->redirect(['index']);
+        return '删除年级成功！';
     }
 
     /**

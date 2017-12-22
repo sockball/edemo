@@ -5,7 +5,6 @@ use Yii;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use backend\helpers\myHelpers;
-use common\models\Teacher;
 // use yii\web\Controller;
 
 class Upload
@@ -14,7 +13,7 @@ class Upload
 	const size 	 	= 1024 * 1024 * 3;
 
 	//后缀名
-	const extensions = ['gif', 'jpg', 'jpeg', 'png', 'gif'];
+	const picExtensions = ['gif', 'jpg', 'jpeg', 'png', 'gif'];
 
     public static function uploadPic($inputName)
     {
@@ -26,7 +25,7 @@ class Upload
                     if ($image->size > self::size)
                         return $res = ['error' => 1, 'msg' => '图片最大不可超过3M'];
 
-                    if (!in_array(strtolower($image->extension), self::extensions))
+                    if (!in_array(strtolower($image->extension), self::picExtensions))
                         return $res = ['error' => 1, 'msg' => '请上传标准图片文件']; 
 
                     $filepath = '../../common/uploads/temp/';
@@ -88,16 +87,62 @@ class Upload
 
     public static function uploadExcel($type)
     {
-        $excel    = UploadedFile::getInstanceByName('excel');
+        $excel = UploadedFile::getInstanceByName('excel');
+
+        if (!in_array(strtolower($excel->extension), ['xls', 'xlsx']))
+            return $res = ['error' => 1, 'msg' => '请上传excel文件！'];
+
         $filepath = '../../common/uploads/excel/';
         $filename =  $filepath . $type . time() .  '.' . $excel->extension;
 
         if ($excel->saveAs($filename))
         {
-            $res = ['error' => 0, 'msg' => '批量导入教师成功'];
+            $method = 'create' . ucfirst($type) . 'sFromExcel';
+            $res    = self::$method($filename);
+            unlink($filename);
         }
         else
             $res = ['error' => 1, 'msg' => '上传失败'];
+
+        return $res;
+    }
+
+    public static function createTeachersFromExcel($file)
+    {
+        //Command对象查看sql语句在execute前 ->getRawSql();
+        $res    = myHelpers::readExcel($file);
+        $columns = [
+            'name', 'sex', 'mobile', 'birthdate', 'hiredate', 'main', 'experience', 'result', 'special',
+            'school', 'avatar', 'bindcode',
+        ];
+        $data = [];
+
+        if(!isset($data['error']))
+        {
+            $school = Yii::$app->session->get('school');
+            $avatar = (new \yii\db\Query())->select(['teacher'])->from('school')->where(['id' => $school])->scalar();
+            foreach ($res as $key => $v)
+            {
+                $data[$key] = [
+                    'name'      => $v[0],
+                    'sex'       => ($v[1] == '男') ? 0 : 1,
+                    'mobile'    => intval($v[2]),
+                    'birthdate' => strtotime($v[3]),
+                    'hiredate'  => strtotime($v[4]),
+                    'main'      => $v[5],
+                    'experience'=> $v[6],
+                    'result'    => $v[7],
+                    'special'   => $v[8],
+                    'school'    => $school,
+                    'avatar'    => $avatar,
+                    'bindcode'  => myHelpers::createBindCode(),
+                ];
+            }
+
+            Yii::$app->db->createCommand()->batchInsert('teacher', $columns, $data)->execute();
+
+            $res = ['error' => 0, 'msg' => '批量导入教师成功'];
+        }
 
         return $res;
     }
