@@ -3,6 +3,7 @@
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use common\models\Teacher;
+use backend\widgets\JsBlock;
 /* @var $this yii\web\View */
 /* @var $model common\models\Grade */
 /* @var $form yii\widgets\ActiveForm */
@@ -12,12 +13,12 @@ use common\models\Teacher;
 
     <?php
         $form = ActiveForm::begin([
-            'options' => ['class' => 'form-horizontal'],
+            'options' => ['class' => 'form-horizontal layui-form'],
             'fieldConfig' => [  
                 'template' => '{label}<div class="col-md-8">{input}{hint}{error}</div>',  
                 'labelOptions' => ['class' => 'col-md-2 control-label font-left'],  
             ],
-        ]); 
+        ]);
 
         $techers = Teacher::find()->select(['name','id'])->indexBy('id')->column();
     ?>
@@ -35,3 +36,8 @@ use common\models\Teacher;
     <?php ActiveForm::end(); ?>
 
 </div>
+<?php JsBlock::begin() ?>
+    <script>
+        layui.use(['form'], function(){});
+    </script>
+<?php JsBlock::end() ?>

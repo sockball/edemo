@@ -59,7 +59,7 @@ UploadAsset::register($this);
 
     <?= $form->field($model, 'main')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'birthdate')->textInput(['maxlength' => true, 'readonly' => true, 'class' => 'layui-input']) ?>
+    <?= $form->field($model, 'birthdate')->textInput(['readonly' => true, 'class' => 'layui-input']) ?>
 
     <?= $form->field($model, 'hiredate')->textInput(['maxlength' => true, 'readonly' => true, 'class' => 'layui-input']) ?>
 

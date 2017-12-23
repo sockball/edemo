@@ -140,7 +140,7 @@ else
                                   'items' => [
                                        ['label' => '教师管理', 'url' => ['teacher/index'], 'active' => ($currentController == 'teacher')],
                                        // '<li class="dropdown-header">Dropdown Header</li>',
-                                       ['label' => '学生管理', 'url' => '#'],
+                                       ['label' => '学生管理', 'url' => ['student/index'], 'active' => ($currentController == 'student')],
                                        ['label' => '成绩管理', 'url' => '#'],
                                        ['label' => '课程管理', 'url' => '#'],
                                        ['label' => '课时管理', 'url' => '#'],
@@ -164,7 +164,8 @@ else
                      ],
                      [
                          'label' => '班级管理',
-                         'url' => ['site/index'],
+                         'url' => ['classinfo/index'],
+                         'active' => ($currentController == 'classinfo'),
                          'linkOptions' => [],
                      ],
                      [

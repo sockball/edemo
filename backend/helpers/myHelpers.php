@@ -16,7 +16,7 @@ class myHelpers
       * return string
     */
 
-    public static function fillZeroInNumber($number, $num, $str = 0)
+    public static function fillInNumber($number, $num, $str = 0)
     {
         return sprintf("%'{$str}{$num}d", $number);
     }

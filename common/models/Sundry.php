@@ -43,7 +43,7 @@ class Sundry extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'school' => 'School',
-            'name' => 'Name',
+            'name' => '名称',
             'type' => 'Type',
         ];
     }

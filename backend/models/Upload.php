@@ -12,7 +12,7 @@ class Upload
 	//图片大小
 	const size 	 	= 1024 * 1024 * 3;
 
-	//后缀名
+	//图片后缀名
 	const picExtensions = ['gif', 'jpg', 'jpeg', 'png', 'gif'];
 
     public static function uploadPic($inputName)
@@ -110,7 +110,46 @@ class Upload
     public static function createTeachersFromExcel($file)
     {
         //Command对象查看sql语句在execute前 ->getRawSql();
-        $res    = myHelpers::readExcel($file);
+        $res     = myHelpers::readExcel($file);
+        $columns = [
+            'name', 'sex', 'mobile', 'birthdate', 'hiredate', 'main', 'experience', 'result', 'special',
+            'school', 'avatar', 'bindcode',
+        ];
+        $data = [];
+
+        if(!isset($data['error']))
+        {
+            $school = Yii::$app->session->get('school');
+            $avatar = (new \yii\db\Query())->select(['teacher'])->from('school')->where(['id' => $school])->scalar();
+            foreach ($res as $key => $v)
+            {
+                $data[$key] = [
+                    'name'      => $v[0],
+                    'sex'       => ($v[1] == '男') ? 0 : 1,
+                    'mobile'    => intval($v[2]),
+                    'birthdate' => strtotime($v[3]),
+                    'hiredate'  => strtotime($v[4]),
+                    'main'      => $v[5],
+                    'experience'=> $v[6],
+                    'result'    => $v[7],
+                    'special'   => $v[8],
+                    'school'    => $school,
+                    'avatar'    => $avatar,
+                    'bindcode'  => myHelpers::createBindCode(),
+                ];
+            }
+
+            Yii::$app->db->createCommand()->batchInsert('teacher', $columns, $data)->execute();
+
+            $res = ['error' => 0, 'msg' => '批量导入教师成功'];
+        }
+
+        return $res;
+    }
+
+    public static function createStudentsFromExcel($file)
+    {
+        $res     = myHelpers::readExcel($file);
         $columns = [
             'name', 'sex', 'mobile', 'birthdate', 'hiredate', 'main', 'experience', 'result', 'special',
             'school', 'avatar', 'bindcode',

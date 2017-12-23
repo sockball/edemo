@@ -112,6 +112,7 @@ class Teacher extends \yii\db\ActiveRecord
 
     public function getAge()
     {
-        return date('Y') -  date('Y', $this->birthdate);
+        return date('Y') - date('Y', $this->birthdate);
     }
+
 }

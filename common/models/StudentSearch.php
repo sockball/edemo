@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Teacher;
+use common\models\Student;
 
 /**
- * TeacherSearch represents the model behind the search form about `common\models\Teacher`.
+ * StudentSearch represents the model behind the search form about `common\models\Student`.
  */
-class TeacherSearch extends Teacher
+class StudentSearch extends Student
 {
     public function attributes()
     {
@@ -23,8 +23,8 @@ class TeacherSearch extends Teacher
     public function rules()
     {
         return [
-            [['id', 'uid', 'sex', 'mobile', 'birthdate', 'hiredate', 'age', 'bindtime', 'ischairman'], 'integer'],
-            [['name', 'avatar', 'main', 'bindcode', 'experience', 'result', 'special'], 'safe'],
+            [['id', 'code', 'sex', 'birthdate', 'age', 'mobile'], 'integer'],
+            [['name', 'avatar', 'cid'], 'safe'],
         ];
     }
 
@@ -46,15 +46,17 @@ class TeacherSearch extends Teacher
      */
     public function search($params)
     {
-        $school = Yii::$app->session->get('school');
-        $query  = Teacher::find()->where(['school' => $school]);
+        $school = Yii::$app->session->get('school');   
+        $query  = Student::find()->where(['grade.school' => $school]);
+
+        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => ['pagesize' => 10],
             'sort'      => [
-                        'defaultOrder' => ['id' => SORT_DESC,],
-                        'attributes'   => ['id', 'age'],
+                        'defaultOrder' => ['id' => SORT_DESC],
+                        'attributes'   => ['id'],
             ]
         ]);
 
@@ -73,9 +75,12 @@ class TeacherSearch extends Teacher
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name])
-            ->andFilterWhere(['like', 'mobile', $this->mobile])
-            ->andFilterWhere(['like', 'main', $this->main])
-            ->andFilterWhere(['like', 'bindcode', $this->bindcode]);
+              ->andFilterWhere(['like', 'mobile', $this->mobile])
+              ->andFilterWhere(['like', 'code', $this->code]);
+
+        $query->join('INNER JOIN', 'classinfo', 'classinfo.id = student.cid');
+        $query->join('INNER JOIN', 'grade', 'grade.id = classinfo.parent');
+        $query->andFilterWhere(['like', 'classinfo.name', $this->cid]);
 
         if(!empty($this->age))
         {
@@ -84,12 +89,6 @@ class TeacherSearch extends Teacher
 
             $query->andFilterWhere(['between', 'birthdate', $birthStart, $birthEnd]);
         }
-
-        $dataProvider->sort->attributes['age'] = 
-        [
-            'asc'  => ['birthdate' => SORT_DESC],
-            'desc' => ['birthdate' => SORT_ASC],
-        ];
 
         return $dataProvider;
     }
