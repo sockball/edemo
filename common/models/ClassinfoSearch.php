@@ -44,12 +44,10 @@ class ClassinfoSearch extends Classinfo
         $school = Yii::$app->session->get('school');
         $query  = Classinfo::find()->where(['grade.school' => $school]);
 
-        // add conditions that should always apply here
-
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => ['pagesize' => 10],
-            'sort'      => [
+            'sort'       => [
                         'defaultOrder' => ['id' => SORT_DESC],
                         'attributes'   => ['id'],
             ]
@@ -65,7 +63,7 @@ class ClassinfoSearch extends Classinfo
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'id' => $this->id,
+            'id'    => $this->id,
             'isvip' => $this->isvip,
         ]);
 

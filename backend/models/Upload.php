@@ -5,6 +5,8 @@ use Yii;
 use yii\web\UploadedFile;
 use yii\helpers\FileHelper;
 use backend\helpers\myHelpers;
+use yii\db\Query;
+use common\models\Student;
 // use yii\web\Controller;
 
 class Upload
@@ -117,16 +119,16 @@ class Upload
         ];
         $data = [];
 
-        if(!isset($data['error']))
+        if(!isset($res['error']))
         {
             $school = Yii::$app->session->get('school');
-            $avatar = (new \yii\db\Query())->select(['teacher'])->from('school')->where(['id' => $school])->scalar();
+            $avatar = (new Query())->select(['teacher'])->from('school')->where(['id' => $school])->scalar();
             foreach ($res as $key => $v)
             {
                 $data[$key] = [
                     'name'      => $v[0],
                     'sex'       => ($v[1] == '男') ? 0 : 1,
-                    'mobile'    => intval($v[2]),
+                    'mobile'    => floatval($v[2]),
                     'birthdate' => strtotime($v[3]),
                     'hiredate'  => strtotime($v[4]),
                     'main'      => $v[5],
@@ -151,38 +153,72 @@ class Upload
     {
         $res     = myHelpers::readExcel($file);
         $columns = [
-            'name', 'sex', 'mobile', 'birthdate', 'hiredate', 'main', 'experience', 'result', 'special',
-            'school', 'avatar', 'bindcode',
+            'name', 'sex', 'mobile', 'birthdate', 'cid', 'createtime', 'avatar',
         ];
         $data = [];
 
-        if(!isset($data['error']))
+        if(!isset($res['error']))
         {
             $school = Yii::$app->session->get('school');
-            $avatar = (new \yii\db\Query())->select(['teacher'])->from('school')->where(['id' => $school])->scalar();
+            $query  = new Query();
+            $avatar = $query->select(['student'])->from('school')->where(['id' => $school])->scalar();
+
+            $now = time();
+            $error = false;
+
             foreach ($res as $key => $v)
             {
+                $query     = new Query();
+                $gradeName = $v[4];
+                $className = $v[5];
+                $cid       = $query->select(['classinfo.id'])
+                                   ->from('classinfo')
+                                   ->where(['like', 'classinfo.name', $className])
+                                   ->join('INNER JOIN', 'grade', 'grade.id = classinfo.parent')
+                                   ->andWhere(['like', 'grade.name', $gradeName])
+                                   ->andWhere(['school' => $school])
+                                   ->scalar();
+
+                if($cid === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行年级或班级不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
                 $data[$key] = [
                     'name'      => $v[0],
                     'sex'       => ($v[1] == '男') ? 0 : 1,
-                    'mobile'    => intval($v[2]),
+                    'mobile'    => floatval($v[2]),
                     'birthdate' => strtotime($v[3]),
-                    'hiredate'  => strtotime($v[4]),
-                    'main'      => $v[5],
-                    'experience'=> $v[6],
-                    'result'    => $v[7],
-                    'special'   => $v[8],
-                    'school'    => $school,
+                    'cid'       => $cid,
+                    'createtime'=> $now,
                     'avatar'    => $avatar,
-                    'bindcode'  => myHelpers::createBindCode(),
                 ];
             }
 
-            Yii::$app->db->createCommand()->batchInsert('teacher', $columns, $data)->execute();
-
-            $res = ['error' => 0, 'msg' => '批量导入教师成功'];
+            if(!$error)
+            {
+                Yii::$app->db->createCommand()->batchInsert('student', $columns, $data)->execute();
+                self::updateStudentsCode();
+                $res = ['error' => 0, 'msg' => '批量导入学生成功'];
+            }
         }
 
         return $res;
+    }
+
+    public static function updateStudentsCode()
+    {
+        //没加上学校搜索条件.. 全更新也可以?
+        $students = Student::find()->select(['id', 'cid'])->where(['code' => 0])->all();
+        foreach ($students as $key => $student)
+        {
+            $code = myHelpers::createStudentCode($student->cid, $student->id);
+            //用save(false)的话会走beforeSave等等;
+            $student->updateAll(['code' => $code], ['id' => $student->id]);
+        }
     }
 }

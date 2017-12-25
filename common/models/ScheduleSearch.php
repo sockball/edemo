@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Grade;
+use common\models\Schedule;
 
 /**
- * GradeSearch represents the model behind the search form about `common\models\Grade`.
+ * ScheduleSearch represents the model behind the search form about `common\models\Schedule`.
  */
-class GradeSearch extends Grade
+class ScheduleSearch extends Schedule
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class GradeSearch extends Grade
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['name', 'manager'], 'safe'],
+            [['id', 'period', 'num', 'ifadjust'], 'integer'],
+            [['info', 'relate', 'date'], 'safe'],
         ];
     }
 
@@ -42,7 +42,7 @@ class GradeSearch extends Grade
     public function search($params)
     {
         $school = Yii::$app->session->get('school');
-        $query  = Grade::find()->where(['grade.school' => $school]);
+        $query  = Schedule::find()->where(['sundry.school' => $school]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -63,13 +63,22 @@ class GradeSearch extends Grade
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'grade.id' => $this->id,
+            'id'       => $this->id,
+            'period'   => $this->period,
+            'num'      => $this->num,
+            'ifadjust' => $this->ifadjust,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        $dateArray = explode(' - ', $this->date);
+        ($start = strtotime($dateArray[0])) ? '' : ($start = 0);
+        $end    = isset($dateArray[1]) ? strtotime($dateArray[1]) : time();
 
-        $query->join('INNER JOIN', 'teacher', 'teacher.id = grade.manager');
-        $query->andFilterWhere(['like', 'teacher.name', $this->manager]);
+        $query->andFilterWhere(['between', 'schedule.date', $start, $end]);
+
+        $query->innerJoin('course', 'course.id = schedule.relate');
+        $query->andFilterWhere(['like', 'course.name', $this->relate]);
+
+        $query->innerJoin('sundry', 'sundry.id = course.subject');
 
         return $dataProvider;
     }

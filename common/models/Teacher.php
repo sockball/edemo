@@ -86,10 +86,14 @@ class Teacher extends \yii\db\ActiveRecord
                 $this->avatar   = Upload::updateTemp($this->avatar, '', 'teacher');
             }
             else
-                $this->avatar = Upload::updateTemp($this->avatar, $this->oldAttributes['avatar'], 'teacher');
+            {
+                if($this->avatar != $this->oldAttributes['avatar'])
+                    $this->avatar = Upload::updateTemp($this->avatar, $this->oldAttributes['avatar'], 'teacher');
+            }
 
             $this->birthdate  = strtotime($this->birthdate);
             $this->hiredate   = strtotime($this->hiredate);
+
             return true;
         }
         else

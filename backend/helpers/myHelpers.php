@@ -34,6 +34,20 @@ class myHelpers
     }
 
     /**
+      * 根据 年份 班级 学生id 生成学号
+      * return string
+    */
+
+    public static function createStudentCode($cid, $id)
+    {
+        $cid  = self::fillInNumber($cid, 4);
+        $id   = self::fillInNumber($id, 4);
+        $code = date('Y') . $cid . $id;
+
+        return $code;
+    }
+
+    /**
       * 生成后台提示用HTML
       * @string $hint 提示内容
       * return string

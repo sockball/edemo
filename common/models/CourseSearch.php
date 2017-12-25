@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Grade;
+use common\models\Course;
 
 /**
- * GradeSearch represents the model behind the search form about `common\models\Grade`.
+ * CourseSearch represents the model behind the search form about `common\models\Course`.
  */
-class GradeSearch extends Grade
+class CourseSearch extends Course
 {
     /**
      * @inheritdoc
@@ -19,7 +19,7 @@ class GradeSearch extends Grade
     {
         return [
             [['id'], 'integer'],
-            [['name', 'manager'], 'safe'],
+            [['name', 'info', 'tid', 'cid', 'assistant', 'subject'], 'safe'],
         ];
     }
 
@@ -42,12 +42,12 @@ class GradeSearch extends Grade
     public function search($params)
     {
         $school = Yii::$app->session->get('school');
-        $query  = Grade::find()->where(['grade.school' => $school]);
+        $query  = Course::find()->where(['sundry.school' => $school]);
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
             'pagination' => ['pagesize' => 10],
-            'sort'       => [
+            'sort'      => [
                         'defaultOrder' => ['id' => SORT_DESC],
                         'attributes'   => ['id'],
             ]
@@ -63,13 +63,24 @@ class GradeSearch extends Grade
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'grade.id' => $this->id,
+            'course.id' => $this->id,
         ]);
 
         $query->andFilterWhere(['like', 'name', $this->name]);
 
-        $query->join('INNER JOIN', 'teacher', 'teacher.id = grade.manager');
-        $query->andFilterWhere(['like', 'teacher.name', $this->manager]);
+        $query->join('INNER JOIN', 'teacher as t', 't.id = course.tid');
+        $query->andFilterWhere(['like', 't.name', $this->tid]);
+
+        $query->join('INNER JOIN', 'teacher as ass', 'ass.id = course.assistant');
+        $query->andFilterWhere(['like', 'ass.name', $this->assistant]);
+
+        $query->join('INNER JOIN', 'sundry', 'sundry.id = course.subject');
+        $query->andFilterWhere(['like', 'sundry.name', $this->subject]);
+
+        $query->join('INNER JOIN', 'classinfo', 'classinfo.id = course.cid');
+        $query->andFilterWhere(['like', 'classinfo.name', $this->cid]);
+
+        // v($query->createCommand()->getRawSql());
 
         return $dataProvider;
     }

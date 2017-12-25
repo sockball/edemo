@@ -75,7 +75,7 @@ class Student extends \yii\db\ActiveRecord
                     $this->avatar = Upload::updateTemp($this->avatar, $this->oldAttributes['avatar'], 'student');
 
                 if($this->cid != $this->oldAttributes['cid'])
-                    $this->code = $this->getCode($this->cid, $this->id);
+                    $this->code = myHelpers::createStudentCode($this->cid, $this->id);
             }
 
             $this->birthdate  = strtotime($this->birthdate);
@@ -91,18 +91,18 @@ class Student extends \yii\db\ActiveRecord
 
         if ($insert)
         {
-            $code = $this->getCode($this->cid, $this->id);
+            $code = myHelpers::createStudentCode($this->cid, $this->id);
             self::updateAll(['code' => $code], ['id' => $this->id]);
         }
     }
 
-    protected function getCode($cid, $id)
+    public function afterDelete()
     {
-        $cid  = myHelpers::fillInNumber($cid, 4);
-        $id   = myHelpers::fillInNumber($id, 4);
-        $code = date('Y') . $cid . $id;
+        $oldAvatar = myHelpers::getImgPath($this->avatar);
+        if(file_exists($oldAvatar) && strpos($oldAvatar, 'student/'))
+            unlink($oldAvatar);
 
-        return $code;
+        return parent::beforeDelete();
     }
 
     public function getClass()
