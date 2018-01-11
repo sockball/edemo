@@ -71,7 +71,7 @@ else
             $menuItems[] = '<li>'
                 . Html::beginForm(['/site/logout'], 'post')
                 . Html::submitButton(
-                    'Logout (' . Yii::$app->user->identity->username . ')',
+                    '(' . Yii::$app->user->identity->username . ')退出登录',
                     ['class' => 'btn btn-link logout']
                 )
                 . Html::endForm()
@@ -104,7 +104,7 @@ else
                         <br>
                         <span class='text-info'><?= $schoolModel->name ?></span>
                         <br>
-                        <span>用户名</span>
+                        <span><?= Yii::$app->user->identity->username ?></span>
                     </div>
                     <?= 
                         SideNavWidget::widget([
@@ -136,17 +136,23 @@ else
                                   ],
                               ],
                               [
-                                  'label' => '教务管理',
-                                  'items' => [
-                                       ['label' => '教师管理', 'url' => ['teacher/index'], 'active' => ($currentController == 'teacher')],
-                                       // '<li class="dropdown-header">Dropdown Header</li>',
-                                       ['label' => '学生管理', 'url' => ['student/index'], 'active' => ($currentController == 'student')],
-                                       ['label' => '成绩管理', 'url' => '#'],
-                                       ['label' => '课程管理', 'url' => ['course/index'], 'active' => ($currentController == 'course')],
-                                       ['label' => '课时管理', 'url' => ['schedule/index'], 'active' => ($currentController == 'schedule')],
-                                       ['label' => '考试管理', 'url' => '#'],
-                                  ],
+                                'label' => '教务管理',
+                                'items' => [
+                                   ['label' => '教师管理', 'url' => ['teacher/index'], 'active' => ($currentController == 'teacher')],
+                                   // '<li class="dropdown-header">Dropdown Header</li>',
+                                   ['label' => '学生管理', 'url' => ['student/index'], 'active' => ($currentController == 'student')],
+                                   ['label' => '成绩管理', 'url' => '#'],
+                                   ['label' => '课程管理', 'url' => ['course/index'], 'active' => ($currentController == 'course')],
+                                   ['label' => '课时管理', 'url' => ['schedule/index'], 'active' => ($currentController == 'schedule')],
+                                   ['label' => '考试管理', 'url' => ['exam/index'], 'active' => ($currentController == 'exam')],
+                                ],
                               ],
+                              [
+                                'label' => '权限管理',
+                                'items' => [
+                                   ['label' => '管理员设置', 'url' => ['admin/index'], 'active' => ($currentController == 'admin')],
+                                ],
+                              ]
                           ],
                       ]);
                     ?>

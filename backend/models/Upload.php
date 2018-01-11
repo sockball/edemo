@@ -174,7 +174,7 @@ class Upload
                 $cid       = $query->select(['classinfo.id'])
                                    ->from('classinfo')
                                    ->where(['like', 'classinfo.name', $className])
-                                   ->join('INNER JOIN', 'grade', 'grade.id = classinfo.parent')
+                                   ->innerJoin('grade', 'grade.id = classinfo.parent')
                                    ->andWhere(['like', 'grade.name', $gradeName])
                                    ->andWhere(['school' => $school])
                                    ->scalar();
@@ -204,6 +204,222 @@ class Upload
                 Yii::$app->db->createCommand()->batchInsert('student', $columns, $data)->execute();
                 self::updateStudentsCode();
                 $res = ['error' => 0, 'msg' => '批量导入学生成功'];
+            }
+        }
+
+        return $res;
+    }
+
+    public static function createCoursesFromExcel($file)
+    {
+        $res     = myHelpers::readExcel($file);
+        $columns = [
+            'cid', 'name', 'tid', 'assistant', 'subject', 'info', 'price', 'starttime', 'endtime',
+        ];
+        $data = [];
+
+        if(!isset($res['error']))
+        {
+            $school = Yii::$app->session->get('school');
+
+            $now = time();
+            $error = false;
+
+            foreach ($res as $key => $v)
+            {
+                //查询年级、班级是否存在
+                $query     = new Query();
+                $gradeName = $v[0];
+                $className = $v[1];
+                $cid       = $query->select(['classinfo.id'])
+                                   ->from('classinfo')
+                                   ->where(['like', 'classinfo.name', $className])
+                                   ->innerJoin('grade', 'grade.id = classinfo.parent')
+                                   ->andWhere(['like', 'grade.name', $gradeName])
+                                   ->andWhere(['school' => $school])
+                                   ->scalar();
+
+                if($cid === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行年级或班级不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                //查询教师是否存在
+                $query       = new Query();
+                $teacherName = $v[3];
+                $teacher     = $query->select(['id'])
+                                     ->from('teacher')
+                                     ->where(['like', 'name', $teacherName])
+                                     ->andWhere(['school' => $school])
+                                     ->scalar();
+
+                if($teacher === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行授课教师不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                $assistantName = trim($v[4]);
+                if(!empty($assistantName))
+                {
+                    //查询助教是否存在
+                    $query       = new Query();
+                    $assistant   = $query->select(['id'])
+                                         ->from('teacher')
+                                         ->where(['like', 'name', $assistantName])
+                                         ->andWhere(['school' => $school])
+                                         ->scalar();
+
+                    if($assistant === false)
+                    {
+                        $error = true;
+                        $msg   = 'Excel表第' . ($key + 2) . '行助教不存在!';
+                        $res   = ['error' => 1, 'msg' => $msg];
+
+                        break;
+                    }     
+                }
+                else
+                    $assistant = 0;
+
+                //查询科目是否存在
+                $query       = new Query();
+                $subjectName = $v[5];
+                $subject     = $query->select(['id'])
+                                    ->from('sundry')
+                                    ->where(['school' => $school])
+                                    ->andWhere(['like', 'name', $subjectName])
+                                    ->scalar();
+
+                if($subject === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行科目不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                $data[$key] = [
+                    'cid'       => $cid,
+                    'name'      => $v[2],
+                    'tid'       => $teacher,
+                    'assistant' => $assistant,
+                    'subject'   => $subject,
+                    'info'      => $v[6],
+                    'price'     => $v[7],
+                    'starttime' => strtotime($v[8]),
+                    'endtime'   => strtotime($v[9]),
+                ];
+            }
+
+            if(!$error)
+            {
+                Yii::$app->db->createCommand()->batchInsert('course', $columns, $data)->execute();
+                self::updateStudentsCode();
+                $res = ['error' => 0, 'msg' => '批量导入课程成功'];
+            }
+        }
+
+        return $res;
+    }
+
+    public static function createSchedulesFromExcel($file)
+    {
+        $res     = myHelpers::readExcel($file);
+        $columns = [
+            'relate', 'date', 'period', 'num', 'info',
+        ];
+        $data = [];
+
+        if(!isset($res['error']))
+        {
+            $school = Yii::$app->session->get('school');
+
+            $now = time();
+            $error = false;
+
+            foreach ($res as $key => $v)
+            {
+                //查询年级、班级是否存在
+                $query     = new Query();
+                $gradeName = $v[0];
+                $className = $v[1];
+                $cid       = $query->select(['classinfo.id'])
+                                   ->from('classinfo')
+                                   ->where(['like', 'classinfo.name', $className])
+                                   ->innerJoin('grade', 'grade.id = classinfo.parent')
+                                   ->andWhere(['like', 'grade.name', $gradeName])
+                                   ->andWhere(['school' => $school])
+                                   ->scalar();
+
+                if($cid === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行年级或班级不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                //查询课程是否存在
+                $query      = new Query();
+                $courseName = $v[2];
+                $course     = $query->select(['course.id'])
+                                    ->from('course')
+                                    ->where(['like', 'course.name', $courseName])
+                                    ->innerJoin('classinfo', 'course.cid = classinfo.id')
+                                    ->andWhere(['classinfo.id' => $cid])
+                                    ->scalar();
+
+                if($course === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行课程不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                //查询时段是否存在
+                $query      = new Query();
+                $periodName = $v[4];
+                $period     = $query->select(['id'])
+                                    ->from('sundry')
+                                    ->where(['school' => $school])
+                                    ->andWhere(['like', 'name', $periodName])
+                                    ->scalar();
+
+                if($period === false)
+                {
+                    $error = true;
+                    $msg   = 'Excel表第' . ($key + 2) . '行时段不存在!';
+                    $res   = ['error' => 1, 'msg' => $msg];
+
+                    break;
+                }
+
+                $data[$key] = [
+                    'relate'    => $course,
+                    'date'      => strtotime($v[3]),
+                    'period'    => $period,
+                    'num'       => intval($v[5]),
+                    'info'      => $v[6],
+                ];
+            }
+
+            if(!$error)
+            {
+                Yii::$app->db->createCommand()->batchInsert('schedule', $columns, $data)->execute();
+                self::updateStudentsCode();
+                $res = ['error' => 0, 'msg' => '批量导入课表成功'];
             }
         }
 

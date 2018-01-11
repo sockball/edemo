@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Grade;
+use backend\models\Admin;
 
 /**
- * GradeSearch represents the model behind the search form about `common\models\Grade`.
+ * AdminSearch represents the model behind the search form about `backend\models\Admin`.
  */
-class GradeSearch extends Grade
+class AdminSearch extends Admin
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class GradeSearch extends Grade
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['name', 'manager'], 'safe'],
+            [['id', 'status', 'created_at', 'updated_at'], 'integer'],
+            [['username', 'auth_key', 'password_hash', 'password_reset_token', 'email'], 'safe'],
         ];
     }
 
@@ -41,16 +41,12 @@ class GradeSearch extends Grade
      */
     public function search($params)
     {
-        $school = Yii::$app->session->get('school');
-        $query  = Grade::find()->where(['grade.school' => $school]);
+        $query = Admin::find();
+
+        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'pagination' => ['pagesize' => 10],
-            'sort'       => [
-                        'defaultOrder' => ['id' => SORT_DESC],
-                        'attributes'   => ['id'],
-            ],
         ]);
 
         $this->load($params);
@@ -63,13 +59,17 @@ class GradeSearch extends Grade
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'grade.id' => $this->id,
+            'id' => $this->id,
+            'status' => $this->status,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
-
-        $query->join('INNER JOIN', 'teacher', 'teacher.id = grade.manager');
-        $query->andFilterWhere(['like', 'teacher.name', $this->manager]);
+        $query->andFilterWhere(['like', 'username', $this->username])
+            ->andFilterWhere(['like', 'auth_key', $this->auth_key])
+            ->andFilterWhere(['like', 'password_hash', $this->password_hash])
+            ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token])
+            ->andFilterWhere(['like', 'email', $this->email]);
 
         return $dataProvider;
     }

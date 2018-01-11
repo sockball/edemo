@@ -4,12 +4,14 @@ use yii\helpers\Html;
 use yii\grid\GridView;
 use backend\helpers\myHelpers;
 use backend\widgets\JsBlock;
+use backend\assets\UploadAsset;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\CourseSearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = '课程管理';
 $this->params['breadcrumbs'][] = $this->title;
+UploadAsset::register($this);
 ?>
 
 <?= ($hint = myHelpers::getHint()) ? myHelpers::giveHint($hint) : '' ?>
@@ -18,6 +20,16 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p class='img-margin-bottom'>
         <?= Html::a('新增课程', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('批量导入课程', 'javascript:;', ['class' => 'btn btn-success', 'id' => 'export']) ?>
+    </p>
+
+    <p class='img-margin-bottom' style='display:none' id='exportBlock'>
+        <span class='btn btn-info fileinput-button'>
+            <i class='glyphicon glyphicon-plus'></i>
+            <span>上传并导入</span>
+            <input type='file' name='excel' id='uploadExcel'>
+        </span>
+        <?= Html::a('下载导入模板', IMG_PRE . 'excel/template_course.xls', ['class' => 'btn btn-info']) ?>
     </p>
 
     <?= GridView::widget([
@@ -96,5 +108,32 @@ $this->params['breadcrumbs'][] = $this->title;
                 });
             });
         }
+
+        $('#export').on('click', function(){
+            $('#exportBlock').slideToggle();
+        });
+
+        $('#uploadExcel').bind('fileuploadsubmit', function (e, data) {
+            data.formData = {type: 'excel', name: 'course'};  //如果需要额外添加参数可以在这里添加
+        });
+
+        $('#uploadExcel').fileupload({
+            url: './index.php?r=upload/init',
+            dataType: 'JSON',
+        }).bind('fileuploadprogress', function (e, data) {
+            //进度条
+            layer.msg('上传中', {shade:0.3, time:0, scrollbar: false});
+        }).bind('fileuploaddone', function (e, data) {
+            //上传完成
+            if(data.result.error > 0)
+                layer.alert(data.result.msg, {icon: 2, scrollbar: false});
+            else
+                layer.msg(data.result.msg, 
+                    {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false},
+                    function(){
+                        location.reload();
+                    }
+                );
+        });
     </script>
 <?php JsBlock::end();   ?>

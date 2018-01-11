@@ -8,11 +8,11 @@
  */
 
 (function (root, factory) {
-/*	if (typeof define === 'function' && define.amd) {
+	if (typeof define === 'function' && define.amd) {
 		// AMD
 		//noinspection JSUnresolvedFunction
 		define(factory);
-	} else */if (typeof exports === 'object') {
+	} else if (typeof exports === 'object') {
 		// CommonJS
 		module.exports = factory();
 	} else {
@@ -466,7 +466,8 @@
 					day_element,
 					from_user,
 					val,
-					disabled;
+					disabled,
+					selected;
 				// Correct first day in calendar taking into account the first day of the week (Sunday or Monday)
 				(function () {
 					local_date.setDate(1);
@@ -488,7 +489,8 @@
 						dom_add_class(day_element, 'pmu-saturday');
 					}
 					from_user = options.render(new Date(local_date)) || {};
-					val       = local_date.valueOf();
+					// We only reset time for this value in order to deal with Summer/Winter time, but changing `local_date` itself will break days incrementing
+					val       = reset_time(new Date(local_date)).valueOf();
 					disabled  =
 						(options.min && options.min > local_date) ||
 						(options.max && options.max < local_date);
@@ -561,16 +563,19 @@
 			});
 			return splitted_date;
 		}
-		var months_text = locale.monthsShort.join(')(') + ')(' + locale.months.join(')(');
-		separator       = new RegExp('[^0-9a-zA-Z(' + months_text + ')]+');
-		var parts       = date.split(separator),
-			against     = format.split(separator),
+		separator   = [].concat(locale.daysShort, locale.daysMin, locale.days, locale.monthsShort, locale.months);
+		separator   = separator.map(function (item) {
+			return '(' + item + ')';
+		});
+		separator   = new RegExp('[^0-9a-zA-Z' + separator.join('') + ']+');
+		var parts   = date.split(separator),
+			against = format.split(separator),
 			d,
 			m,
 			y,
 			h,
 			min,
-			now         = new Date();
+			now     = new Date();
 		for (i = 0; i < parts.length; i++) {
 			switch (against[i]) {
 				case 'b':

@@ -134,3 +134,13 @@ a.desc:after {
 .list-group-item.active[data-toggle=collapse]{background:#666;border-color: #666}
 table th{text-align: center;}
 table tr td{vertical-align: middle !important;}
+
+/* 考试列表页css */
+.exam-detail{border:1px solid #c7c7cc;margin-bottom: 15px}
+.exam-detail .up{width:100%;display:block;height:40px;border-bottom:#c7c7cc 1px solid;line-height:40px;margin-bottom:0px;}
+.exam-detail .up li{width:10%;}
+.exam-detail .up .width-15{width:15%;}
+.exam-detail .up .width-20{width:20%;}
+.exam-detail .down{width:100%;height:80px;background-color:white;display:block;}
+.exam-detail li{float:left}
+/* 考试列表页css end */

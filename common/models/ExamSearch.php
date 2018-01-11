@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Grade;
+use common\models\Exam;
 
 /**
- * GradeSearch represents the model behind the search form about `common\models\Grade`.
+ * ExamSearch represents the model behind the search form about `common\models\Exam`.
  */
-class GradeSearch extends Grade
+class ExamSearch extends Exam
 {
     /**
      * @inheritdoc
@@ -18,8 +18,8 @@ class GradeSearch extends Grade
     public function rules()
     {
         return [
-            [['id'], 'integer'],
-            [['name', 'manager'], 'safe'],
+            [['id', 'relate', 'pages', 'type', 'passscore', 'totalscore', 'ifpublish', 'createtime'], 'integer'],
+            [['name', 'answer'], 'safe'],
         ];
     }
 
@@ -41,8 +41,9 @@ class GradeSearch extends Grade
      */
     public function search($params)
     {
-        $school = Yii::$app->session->get('school');
-        $query  = Grade::find()->where(['grade.school' => $school]);
+        $query = Exam::find();
+
+        // add conditions that should always apply here
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -50,7 +51,7 @@ class GradeSearch extends Grade
             'sort'       => [
                         'defaultOrder' => ['id' => SORT_DESC],
                         'attributes'   => ['id'],
-            ],
+            ]
         ]);
 
         $this->load($params);
@@ -63,13 +64,18 @@ class GradeSearch extends Grade
 
         // grid filtering conditions
         $query->andFilterWhere([
-            'grade.id' => $this->id,
+            'id' => $this->id,
+            'relate' => $this->relate,
+            'pages' => $this->pages,
+            'type' => $this->type,
+            'passscore' => $this->passscore,
+            'totalscore' => $this->totalscore,
+            'ifpublish' => $this->ifpublish,
+            'createtime' => $this->createtime,
         ]);
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
-
-        $query->join('INNER JOIN', 'teacher', 'teacher.id = grade.manager');
-        $query->andFilterWhere(['like', 'teacher.name', $this->manager]);
+        $query->andFilterWhere(['like', 'name', $this->name])
+            ->andFilterWhere(['like', 'answer', $this->answer]);
 
         return $dataProvider;
     }

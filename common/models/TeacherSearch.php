@@ -51,7 +51,7 @@ class TeacherSearch extends Teacher
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'pagination' => ['pagesize' => 10],
+            'pagination' => ['pagesize' => 1],
             'sort'      => [
                         'defaultOrder' => ['id' => SORT_DESC,],
                         'attributes'   => ['id', 'age'],

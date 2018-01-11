@@ -3,16 +3,16 @@
 namespace backend\controllers;
 
 use Yii;
-use common\models\Schedule;
-use common\models\ScheduleSearch;
+use common\models\Exam;
+use common\models\ExamSearch;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
- * ScheduleController implements the CRUD actions for Schedule model.
+ * ExamController implements the CRUD actions for Exam model.
  */
-class ScheduleController extends Controller
+class ExamController extends Controller
 {
     /**
      * @inheritdoc
@@ -30,41 +30,46 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Lists all Schedule models.
+     * Lists all Exam models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel  = new ScheduleSearch();
-        $get          = Yii::$app->request->queryParams;
-        $dataProvider = $searchModel->search($get);
-
-        //更换模拟触发时间条件
-        $dateSearch = empty($get['ScheduleSearch']['date']) ? 1 : 0;
+        $searchModel = new ExamSearch();
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'searchModel'  => $searchModel,
+            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'dateSearch'   => $dateSearch,
         ]);
     }
 
     /**
-     * Creates a new Schedule model.
+     * Displays a single Exam model.
+     * @param string $id
+     * @return mixed
+     */
+    public function actionView($id)
+    {
+        return $this->render('view', [
+            'model' => $this->findModel($id),
+        ]);
+    }
+
+    /**
+     * Creates a new Exam model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
     public function actionCreate()
     {
-        $model = new Schedule();
+        $model = new Exam();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->set('hint', '新增课时成功');
+            Yii::$app->session->set('hint', '新增考试成功');
 
             return $this->redirect(['index']);
         } else {
-            $model->date = time();
-
             return $this->render('create', [
                 'model' => $model,
             ]);
@@ -72,7 +77,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Updates an existing Schedule model.
+     * Updates an existing Exam model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param string $id
      * @return mixed
@@ -82,7 +87,7 @@ class ScheduleController extends Controller
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            Yii::$app->session->set('hint', '更新课时成功');
+            Yii::$app->session->set('hint', '修改考试成功');
 
             return $this->redirect(['index']);
         } else {
@@ -93,7 +98,7 @@ class ScheduleController extends Controller
     }
 
     /**
-     * Deletes an existing Schedule model.
+     * Deletes an existing Exam model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param string $id
      * @return mixed
@@ -102,36 +107,22 @@ class ScheduleController extends Controller
     {
         $this->findModel($id)->delete();
 
-        return '删除课时成功';
+        return $this->redirect(['index']);
     }
 
     /**
-     * Finds the Schedule model based on its primary key value.
+     * Finds the Exam model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param string $id
-     * @return Schedule the loaded model
+     * @return Exam the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Schedule::findOne($id)) !== null) {
+        if (($model = Exam::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
-    }
-
-    public function actions()
-    {
-        return [
-            'upload' => [
-                'class' => 'kucha\ueditor\UEditorAction',
-                'config' => [
-                    'imageUrlPrefix'  => IMG_PRE,//图片访问路径前缀
-                    'imagePathFormat' => 'ueditor/image/schedule/{time}{rand:6}',
-                    'imageRoot'       => Yii::getAlias('@common') . '\/uploads/',
-                ],
-            ]
-        ];
     }
 }

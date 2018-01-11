@@ -5,6 +5,7 @@ use yii\grid\GridView;
 use backend\helpers\myHelpers;
 use backend\widgets\JsBlock;
 use common\models\Sundry;
+use backend\assets\UploadAsset;
 use backend\assets\PickmeupAsset;
 /* @var $this yii\web\View */
 /* @var $searchModel common\models\ScheduleSearch */
@@ -17,6 +18,7 @@ $school = Yii::$app->session->get('school');
 $periods = Sundry::find()->where(['school' => $school, 'type' => 'period'])->select(['name', 'id'])->indexBy('id')->column();
 
 PickmeupAsset::register($this);
+UploadAsset::register($this);
 ?>
 
 <?= ($hint = myHelpers::getHint()) ? myHelpers::giveHint($hint) : '' ?>
@@ -25,6 +27,16 @@ PickmeupAsset::register($this);
 
     <p class='img-margin-bottom'>
         <?= Html::a('新增课时', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('批量导入课表', 'javascript:;', ['class' => 'btn btn-success', 'id' => 'export']) ?>
+    </p>
+
+    <p class='img-margin-bottom' style='display:none' id='exportBlock'>
+        <span class='btn btn-info fileinput-button'>
+            <i class='glyphicon glyphicon-plus'></i>
+            <span>上传并导入</span>
+            <input type='file' name='excel' id='uploadExcel'>
+        </span>
+        <?= Html::a('下载导入模板', IMG_PRE . 'excel/template_schedule.xls', ['class' => 'btn btn-info']) ?>
     </p>
 
     <?= GridView::widget([
@@ -101,7 +113,7 @@ PickmeupAsset::register($this);
                 layer.close(index);
 
                 // 写在函数内的参数只能在url中传递...
-                $.post('./index.php?r=teacher/delete&id=' + id, {}, function(res) {
+                $.post('./index.php?r=schedule/delete&id=' + id, {}, function(res) {
                     layer.msg(res, {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false}, function(){
                         location.reload();
                     });
@@ -109,20 +121,24 @@ PickmeupAsset::register($this);
             });
         }
 
-        var today   = (new Date()).toLocaleDateString().replace(/\//g, '-'),//今天日期 yyyy-mm-dd
-            dateDom = $('input[name="ScheduleSearch[date]"]')[0];           //选择时间input框的js对象
+        var today      = (new Date()).toLocaleDateString().replace(/\//g, '-'),//今天日期 yyyy-mm-dd
+            dateDom    = $('input[name="ScheduleSearch[date]"]')[0],           //选择时间input框的js对象
+            dateSearch = <?= $dateSearch ?>;
 
         $(dateDom).prop({readonly: true, placeholder: '请选择时间区间'});
+        $(dateDom).addClass('text-center');
 
         pickmeup(dateDom, {
             default_date: false,
             position: 'bottom',
             locale: 'ch',
-            format: 'Y-m-d',
             max: today,
             calendars : 2,
             mode: 'multiple',
+            format: 'Y-m-d',
         });
+        //实在没法 初始化datepicker
+        pickmeup(dateDom).set_date([]);
 
         dateDom.addEventListener('pickmeup-change', function (e) {
             let choosenTwo = e.detail.formatted_date,
@@ -145,18 +161,53 @@ PickmeupAsset::register($this);
             {
                 choosenTwo.sort();
                 $(dateDom).val(choosenTwo.join(' - '));
+                pickmeup(dateDom).hide();
             }
-            else if(length > 0)
+/*            else if(length > 0)
             {
-                $(dateDom).val(choosenTwo[0] + ' - ' + today);              
-            }
+                choosenTwo.push(today);
+                $(dateDom).val(choosenTwo.join(' - '));
+            }*/
         })
 
         dateDom.addEventListener('pickmeup-hide', function (e) {
             let choosenTwo = pickmeup(dateDom).get_date(true);
-            if(choosenTwo.length > 0)
-                $(dateDom).change();    //模拟触发事件..
+            //dateSearch为0代表此时已经使用了时间区间作为条件 为1则没有使用, 应至少选用一天后才触发
+            if(dateSearch == 0)
+                $(dateDom).change();
+
+            else if(choosenTwo.length > 0)
+                $(dateDom).change();    //模拟触发事件..                
+
         })
+
+
+        $('#export').on('click', function(){
+            $('#exportBlock').slideToggle();
+        });
+
+        $('#uploadExcel').bind('fileuploadsubmit', function (e, data) {
+            data.formData = {type: 'excel', name: 'schedule'};  //如果需要额外添加参数可以在这里添加
+        });
+
+        $('#uploadExcel').fileupload({
+            url: './index.php?r=upload/init',
+            dataType: 'JSON',
+        }).bind('fileuploadprogress', function (e, data) {
+            //进度条
+            layer.msg('上传中', {shade:0.3, time:0, scrollbar: false});
+        }).bind('fileuploaddone', function (e, data) {
+            //上传完成
+            if(data.result.error > 0)
+                layer.alert(data.result.msg, {icon: 2, scrollbar: false});
+            else
+                layer.msg(data.result.msg, 
+                    {icon: 1, shadeClose: true, shade: 0.3, scrollbar: false},
+                    function(){
+                        location.reload();
+                    }
+                );
+        });
 
     </script>
 <?php JsBlock::end();   ?>
