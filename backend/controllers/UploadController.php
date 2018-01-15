@@ -3,29 +3,14 @@
 namespace backend\controllers;
 
 use Yii;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\filters\VerbFilter;
 use backend\models\Upload;
 /**
  * 
  */
-class UploadController extends Controller
+class UploadController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     //column为input框的name值
     public function actionInit()
     {

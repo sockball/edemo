@@ -5,7 +5,7 @@ namespace backend\controllers;
 use Yii;
 use common\models\Teacher;
 use common\models\TeacherSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use common\models\School;
@@ -13,23 +13,8 @@ use backend\helpers\myHelpers;
 /**
  * TeacherController implements the CRUD actions for Teacher model.
  */
-class TeacherController extends Controller
+class TeacherController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Teacher models.
      * @return mixed

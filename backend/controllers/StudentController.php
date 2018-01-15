@@ -5,30 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Student;
 use common\models\StudentSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 use common\models\School;
 /**
  * StudentController implements the CRUD actions for Student model.
  */
-class StudentController extends Controller
+class StudentController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Student models.
      * @return mixed

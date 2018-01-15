@@ -27,6 +27,13 @@ return [
             // this is the name of the session cookie used for login on the backend
             'name' => 'advanced-backend',
         ],
+        'authManager' => [
+             'class' => 'yii\rbac\DbManager',
+    /*        'itemTable' => 'auth_item', //权限列表
+            'assignmentTable' => 'auth_assignment', //用户角色分配表
+            'itemChildTable' => 'auth_item_child', //权限角色关联表
+            'defaultRoles' => ['user'], //默认角色*/
+        ],
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [

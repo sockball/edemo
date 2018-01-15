@@ -151,6 +151,7 @@ else
                                 'label' => '权限管理',
                                 'items' => [
                                    ['label' => '管理员设置', 'url' => ['admin/index'], 'active' => ($currentController == 'admin')],
+                                   ['label' => '角色权限设置', 'url' => ['rbac/index'], 'active' => ($currentController == 'rbac')],
                                 ],
                               ]
                           ],

@@ -5,54 +5,28 @@ namespace backend\controllers;
 use Yii;
 use backend\models\Admin;
 use common\models\AdminSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * AdminController implements the CRUD actions for Admin model.
  */
-class AdminController extends Controller
+class AdminController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Admin models.
      * @return mixed
      */
     public function actionIndex()
     {
+
         $searchModel = new AdminSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-        ]);
-    }
-
-    /**
-     * Displays a single Admin model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
         ]);
     }
 
@@ -64,9 +38,12 @@ class AdminController extends Controller
     public function actionCreate()
     {
         $model = new Admin();
+        $model->scenario = 'create';
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->set('hint', '新增管理员成功');
+
+            return $this->redirect(['index']);
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -83,12 +60,54 @@ class AdminController extends Controller
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
+        $model->scenario = 'update';
+        // $model->save(); v($model->errors);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            Yii::$app->session->set('hint', '修改管理员信息成功');
+
+            return $this->redirect(['index']);
         } else {
             return $this->render('update', [
                 'model' => $model,
+            ]);
+        }
+    }
+
+    public function actionReset($id)
+    {
+        $model = $this->findModel($id);
+        $model->scenario = 'reset';
+
+        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            Yii::$app->session->set('hint', '重置密码成功');
+
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('reset', [
+                'model' => $model,
+            ]);
+        }
+    }
+
+    public function actionPrivilege($id)
+    {
+        $model = $this->findModel($id);
+        $auth  = Yii::$app->authManager;
+        $post  = Yii::$app->request->post();
+
+        if (!empty($post) && $model->addRole($post)) {
+            Yii::$app->session->set('hint', '角色设置成功');
+
+            return $this->redirect(['index']);
+        } else {
+            $roles    = array_keys($auth->getRolesByUser($id));
+            $allRoles = array_flip(array_keys($auth->getRoles()));
+
+            return $this->render('privilege', [
+                'model'    => $model,
+                'roles'    => $roles,
+                'allRoles' => $allRoles,
             ]);
         }
     }

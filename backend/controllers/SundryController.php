@@ -5,30 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Sundry;
 use common\models\SundrySearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * SundryController implements the CRUD actions for Sundry model.
  */
-class SundryController extends Controller
+class SundryController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Sundry models.
      * @return mixed

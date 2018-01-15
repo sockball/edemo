@@ -2,7 +2,7 @@
 namespace backend\controllers;
 
 use Yii;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use backend\models\AdminLogin;
@@ -10,7 +10,7 @@ use common\models\School;
 /**
  * Site controller
  */
-class SiteController extends Controller
+class SiteController extends BaseController
 {
     /**
      * @inheritdoc
@@ -20,9 +20,10 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
+                'only' => ['login', 'logout', 'index'],
                 'rules' => [
                     [
-                        'actions' => ['login', 'error', 'uploadlogo', 'captcha'],
+                        'actions' => ['login'],
                         'allow' => true,
                         'roles' => ['?'],
                     ],
@@ -31,7 +32,18 @@ class SiteController extends Controller
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+/*                    [
+                        'actions' => ['special-callback'],
+                        'allow' => true,
+                        //只允许10月31日当天使用
+                        'matchCallback' => function ($rule, $action) {
+                            return date('d-m') === '31-10';
+                        }
+                    ],*/
                 ],
+/*                'denyCallback' => function ($rule, $action) {
+                    throw new \Exception('You are not allowed to access this page');
+                }*/
             ],
             'verbs' => [
                 'class' => VerbFilter::className(),

@@ -7,7 +7,7 @@ use yii\widgets\ActiveForm;
 /* @var $this yii\web\View */
 /* @var $model backend\models\Admin */
 
-$this->title = '新增管理员';
+$this->title = "重置管理员 {$model->username} 密码";
 $this->params['breadcrumbs'][] = ['label' => '管理员设置', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -25,17 +25,15 @@ $this->params['breadcrumbs'][] = $this->title;
 	        ]);
 	    ?>
 
-	    <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
+	    <?= $form->field($model, 'old_password')->passwordInput()->label('原始密码') ?>
 
-	    <?= $form->field($model, 'password')->passwordInput() ?>
+	    <?= $form->field($model, 'password')->passwordInput()->label('新密码') ?>
 
-	    <?= $form->field($model, 'repeat_pwd')->passwordInput(['placeholder' => '请再次输入密码']) ?>
-
-	    <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
+	    <?= $form->field($model, 'repeat_pwd')->passwordInput(['placeholder' => '请再次输入新密码'])->label('新密码确认') ?>
 
 	    <div class='form-group'>
 	        <label class='col-md-2'>
-	        <?= Html::submitButton('新增管理员', ['class' => 'btn btn-success']) ?>
+	        <?= Html::submitButton('重置密码', ['class' => 'btn btn-primary']) ?>
 	        </label>
 	    </div>
 

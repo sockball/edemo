@@ -5,30 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Exam;
 use common\models\ExamSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * ExamController implements the CRUD actions for Exam model.
  */
-class ExamController extends Controller
+class ExamController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
-
     /**
      * Lists all Exam models.
      * @return mixed

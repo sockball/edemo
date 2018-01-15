@@ -22,6 +22,7 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
 {
     public $password;
     public $repeat_pwd;
+    public $old_password;
     /**
      * @inheritdoc
      */
@@ -36,14 +37,26 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'password', 'email'], 'required'],
+            [['username', 'email'], 'required', 'on' => ['create', 'update']],
+            ['password', 'required', 'on' => ['create', 'reset']],
+            ['repeat_pwd', 'required', 'message' => '请确认密码', 'on' => ['create', 'reset']],
+            ['old_password', 'required', 'on' => ['reset']],
             [['username', 'email'], 'string', 'max' => 255],
             [['email'], 'email'],
             ['password', 'pwdRule'],
-            ['repeat_pwd', 'required', 'message' => '请确认密码'],
+            ['old_password', 'validateOldPassword'],
             [['username'], 'unique', 'message' => '用户名已被占用'],
             [['email'], 'unique', 'message' => '邮箱已被占用'],
             ['repeat_pwd' , 'compare','compareAttribute' => 'password', 'message' => '两次密码输入不一致'],
+        ];
+    }
+
+    public function scenarios()
+    {
+        return [
+            'create' => ['username', 'email', 'password', 'repeat_pwd'],
+            'update' => ['username', 'email'],
+            'reset'  => ['password', 'repeat_pwd', 'old_password'],
         ];
     }
 
@@ -58,6 +71,18 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
         return true;
     }
 
+    public function validateOldPassword($attribute, $params)
+    {
+        $res = Yii::$app->security->validatePassword($this->$attribute, $this->oldAttributes['password_hash']);
+        if($res)
+            return true;
+        else
+        {
+            $this->addError($attribute, '原始密码错误');
+            return false;           
+        }
+    }
+
     /**
      * @inheritdoc
      */
@@ -67,6 +92,7 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
             'id' => 'ID',
             'username' => '用户名',
             'password' => '密码',
+            'old_password' => '原始密码',
             'repeat_pwd' => '密码确认',
             'auth_key' => 'Auth Key',
             'password_hash' => 'Password Hash',
@@ -76,6 +102,22 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',
         ];
+    }
+
+    public function addRole($post)
+    {
+        $roles  = empty($post['role']) ? [] : $post['role'];
+        $auth   = Yii::$app->authManager;
+        $userid = $this->id;
+        $auth->revokeAll($userid);
+        foreach ($roles as $key => $name)
+        {
+            $role = $auth->getRole($name);
+            if($role !== NULL)
+                $auth->assign($role, $userid);
+        }
+
+        return true;
     }
 
     public function beforeSave($insert)
@@ -91,7 +133,19 @@ class Admin extends \yii\db\ActiveRecord implements IdentityInterface
             }
             else
             {
-                //再分为 重置密码 和更改 用户名 + 邮箱
+                $action = Yii::$app->controller->action->id;
+                if($action == 'update')
+                {
+                    //修改信息
+                }
+                else if ($action == 'reset')
+                {
+                    //重置密码
+                    $this->setPassword($this->password);
+                }
+                else
+                    return false;
+
                 $this->updated_at = time();
             }
 

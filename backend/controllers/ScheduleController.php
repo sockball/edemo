@@ -5,29 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Schedule;
 use common\models\ScheduleSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * ScheduleController implements the CRUD actions for Schedule model.
  */
-class ScheduleController extends Controller
+class ScheduleController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Lists all Schedule models.

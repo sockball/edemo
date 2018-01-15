@@ -5,29 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Classinfo;
 use common\models\ClassinfoSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * ClassinfoController implements the CRUD actions for Classinfo model.
  */
-class ClassinfoController extends Controller
+class ClassinfoController extends BaseController
 {
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Lists all Classinfo models.

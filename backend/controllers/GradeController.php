@@ -5,30 +5,15 @@ namespace backend\controllers;
 use Yii;
 use common\models\Grade;
 use common\models\GradeSearch;
-use yii\web\Controller;
+use backend\controllers\BaseController;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
 
 /**
  * GradeController implements the CRUD actions for Grade model.
  */
-class GradeController extends Controller
+class GradeController extends BaseController
 {
-
-    /**
-     * @inheritdoc
-     */
-    public function behaviors()
-    {
-        return [
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'delete' => ['POST'],
-                ],
-            ],
-        ];
-    }
 
     /**
      * Lists all Grade models.
