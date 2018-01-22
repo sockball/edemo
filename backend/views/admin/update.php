@@ -17,8 +17,10 @@ $this->params['breadcrumbs'][] = $this->title;
 	    <?php
 	        $form = ActiveForm::begin([
 	            'options' => ['class' => 'form-horizontal layui-form'],
+                'enableAjaxValidation' => true,
+                'enableClientValidation' => true,
 	            'fieldConfig' => [  
-	                'template' => '{label}<div class="col-md-8">{input}{hint}{error}</div>',  
+	                'template' => '{label}<div class="col-md-8">{input}{hint}{error}</div>',
 	                'labelOptions' => ['class' => 'col-md-2 control-label font-left'],  
 	            ],
 	        ]);

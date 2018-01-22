@@ -12,6 +12,7 @@ return [
     'controllerNamespace' => 'backend\controllers',
     'bootstrap' => ['log'],
     'modules' => [],
+    'timeZone' => 'PRC',
     'language' => 'zh-CN',
     // 'defaultRoute' => 'site/index',
     'components' => [
@@ -46,14 +47,16 @@ return [
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        /*
+        
         'urlManager' => [
             'enablePrettyUrl' => true,
-            'showScriptName' => false,
+            'showScriptName'  => false,
+            'suffix'          => '.html',
             'rules' => [
+                '<controller:\w+>s' => '<controller>/index',
+                '<controller:\w+>/<id:\d+>/<action:\w+>'    => '<controller>/<action>',
             ],
         ],
-        */
     ],
     'params' => $params,
 ];

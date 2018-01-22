@@ -6,6 +6,8 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use yii\web\ForbiddenHttpException;
+use yii\helpers\Url;
+use yii\base\InvalidParamException; 
 
 class BaseController extends Controller
 {
@@ -54,9 +56,10 @@ class BaseController extends Controller
 	{
 		if(parent::beforeAction($action))
 		{
-			$controller = Yii::$app->controller->id;
+/*			$controller = Yii::$app->controller->id;
 			$route	 	= $controller . '/' . $action->id;
-
+*/
+			$route = $this->getRoute();//在没有模块的情况下可以如此得到形如 site/login
 			if (in_array($route, $this->commonRoute))
 				return true;
 
@@ -65,12 +68,41 @@ class BaseController extends Controller
 			if ($userid == 1)
 				return true;
 
-			if(!Yii::$app->authManager->checkAccess($userid, $route))
-    			throw new ForbiddenHttpException('您没有此操作的权限！');
+            // Yii::$app->authManager->checkAccess($userid, $route)
+			if(!Yii::$app->user->can($route))
+                throw new ForbiddenHttpException('您没有此操作的权限！');
+                // return $this->error('您没有此操作的权限！');
 
 			return true;
 		}
 
 		return false;
 	}
+
+    public function success($msg, $url, $wait = 5)
+    {
+        if(!is_array($url))
+            throw new InvalidParamException('url参数错误');
+            
+        $url = Url::toRoute($url);
+
+        return $this->renderPartial('//base/_error', [
+                'wait'  => $wait,
+                'url'   => $url,
+                'msg'   => $msg,
+                'title' => '页面跳转',
+            ]);
+    }
+
+    public function error($msg, $url = '', $wait = 5)
+    {
+        $url = is_array($url) ? Url::toRoute($url) : '';
+
+        return $this->renderPartial('//base/_error', [
+                'wait'  => $wait,
+                'url'   => $url,
+                'msg'   => $msg,
+                'title' => '出错啦咧!', 
+            ]);
+    }
 }

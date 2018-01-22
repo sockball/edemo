@@ -20,7 +20,7 @@ class AdminController extends BaseController
      */
     public function actionIndex()
     {
-
+        // v(strtotime('tomorrow'));
         $searchModel = new AdminSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -63,11 +63,20 @@ class AdminController extends BaseController
         $model->scenario = 'update';
         // $model->save(); v($model->errors);
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
+        $load = $model->load(Yii::$app->request->post());
+        if (Yii::$app->request->isAjax)
+        {
+            Yii::$app->response->format = 'json';
+            return \yii\bootstrap\ActiveForm::validate($model);
+        }
+
+        if ($load && $model->save()) {
             Yii::$app->session->set('hint', '修改管理员信息成功');
 
             return $this->redirect(['index']);
-        } else {
+        } 
+        else 
+        {
             return $this->render('update', [
                 'model' => $model,
             ]);

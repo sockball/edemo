@@ -39,7 +39,7 @@ $template = ['template' => '{label}{input}'];
                 'params' => ['controller' => 'school', 'hint' => '上传学校logo'],
             ]);
     ?>
-
+    
     <?= 
         $form->field($model, 'receipt', $template)->widget(FormWidget::className(), 
             [
